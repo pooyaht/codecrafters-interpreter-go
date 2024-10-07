@@ -30,6 +30,8 @@ func (t Token) String() string {
 		return fmt.Sprintf("PLUS %s null", t.Type)
 	case MINUS:
 		return fmt.Sprintf("MINUS %s null", t.Type)
+	case SLASH:
+		return fmt.Sprintf("SLASH %s null", t.Type)
 	case SEMICOLON:
 		return fmt.Sprintf("SEMICOLON %s null", t.Type)
 	case EQUAL:
@@ -69,6 +71,7 @@ const (
 	STAR      TokenType = "*"
 	PLUS      TokenType = "+"
 	MINUS     TokenType = "-"
+	SLASH     TokenType = "/"
 	SEMICOLON TokenType = ";"
 
 	EQUAL       TokenType = "="

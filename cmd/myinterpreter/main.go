@@ -41,6 +41,11 @@ func main() {
 			errorOccurred = true
 			continue
 		}
+
+		if t == nil {
+			continue
+		}
+
 		fmt.Println(t)
 
 		if t.Type == token.EOF {

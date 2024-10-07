@@ -84,6 +84,18 @@ func (s *Scanner) Scan() (*token.Token, error) {
 			return &token.Token{Type: token.GREATER_EQUAL, Lexeme: ">=", Literal: nil}, nil
 		}
 		return &token.Token{Type: token.GREATER, Lexeme: ">", Literal: nil}, nil
+	case '/':
+		s.index++
+		if !s.isAtEnd() && s.input[s.index] == '/' {
+			for ; !s.isAtEnd(); s.index++ {
+				if s.input[s.index] == '\n' {
+					s.index++
+					break
+				}
+			}
+			return nil, nil
+		}
+		return &token.Token{Type: token.SLASH, Lexeme: "/", Literal: nil}, nil
 	default:
 		var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.input[s.index])
 		s.index++
