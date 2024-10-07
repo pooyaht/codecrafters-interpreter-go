@@ -36,6 +36,10 @@ func (t Token) String() string {
 		return fmt.Sprintf("EQUAL %s null", t.Type)
 	case EQUAL_EQUAL:
 		return fmt.Sprintf("EQUAL_EQUAL %s null", t.Type)
+	case BANG:
+		return fmt.Sprintf("BANG %s null", t.Type)
+	case BANG_EQUAL:
+		return fmt.Sprintf("BANG_EQUAL %s null", t.Type)
 	default:
 		return fmt.Sprintf("%s  null", t.Type)
 	}
@@ -61,4 +65,7 @@ const (
 
 	EQUAL       TokenType = "="
 	EQUAL_EQUAL TokenType = "=="
+
+	BANG       TokenType = "!"
+	BANG_EQUAL TokenType = "!="
 )
