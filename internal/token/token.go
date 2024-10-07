@@ -40,6 +40,14 @@ func (t Token) String() string {
 		return fmt.Sprintf("BANG %s null", t.Type)
 	case BANG_EQUAL:
 		return fmt.Sprintf("BANG_EQUAL %s null", t.Type)
+	case LESS:
+		return fmt.Sprintf("LESS %s null", t.Type)
+	case LESS_EQUAL:
+		return fmt.Sprintf("LESS_EQUAL %s null", t.Type)
+	case GREATER:
+		return fmt.Sprintf("GREATER %s null", t.Type)
+	case GREATER_EQUAL:
+		return fmt.Sprintf("GREATER_EQUAL %s null", t.Type)
 	default:
 		return fmt.Sprintf("%s  null", t.Type)
 	}
@@ -68,4 +76,10 @@ const (
 
 	BANG       TokenType = "!"
 	BANG_EQUAL TokenType = "!="
+
+	LESS       TokenType = "<"
+	LESS_EQUAL TokenType = "<="
+
+	GREATER       TokenType = ">"
+	GREATER_EQUAL TokenType = ">="
 )
