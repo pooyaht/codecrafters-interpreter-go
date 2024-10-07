@@ -21,7 +21,7 @@ func NewScanner(input string) Scanner {
 }
 
 func (s *Scanner) Scan() (*token.Token, error) {
-	if s.index >= len(s.input) {
+	if s.isAtEnd() {
 		return &token.Token{Type: token.EOF, Lexeme: "EOF", Literal: nil}, nil
 	}
 
@@ -61,4 +61,8 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		s.index++
 		return nil, err
 	}
+}
+
+func (s *Scanner) isAtEnd() bool {
+	return s.index >= len(s.input)
 }
