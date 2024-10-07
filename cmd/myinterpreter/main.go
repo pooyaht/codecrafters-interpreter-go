@@ -32,15 +32,23 @@ func main() {
 
 	scanner := scanner.NewScanner(string(fileContents))
 
+	var errorOccurred bool
+
 	for {
 		t, err := scanner.Scan()
 		if err != nil {
-			break
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			errorOccurred = true
+			continue
 		}
 		fmt.Println(t)
 
 		if t.Type == token.EOF {
 			break
 		}
+	}
+
+	if errorOccurred {
+		os.Exit(65)
 	}
 }
