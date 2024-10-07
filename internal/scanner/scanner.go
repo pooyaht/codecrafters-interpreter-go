@@ -96,6 +96,9 @@ func (s *Scanner) Scan() (*token.Token, error) {
 			return nil, nil
 		}
 		return &token.Token{Type: token.SLASH, Lexeme: "/", Literal: nil}, nil
+	case ' ', '\r', '\t', '\n':
+		s.index++
+		return nil, nil
 	default:
 		var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.input[s.index])
 		s.index++
