@@ -90,14 +90,19 @@ func (s *Scanner) Scan() (*token.Token, error) {
 			for ; !s.isAtEnd(); s.index++ {
 				if s.input[s.index] == '\n' {
 					s.index++
+					s.line++
 					break
 				}
 			}
 			return nil, nil
 		}
 		return &token.Token{Type: token.SLASH, Lexeme: "/", Literal: nil}, nil
-	case ' ', '\r', '\t', '\n':
+	case ' ', '\r', '\t':
 		s.index++
+		return nil, nil
+	case '\n':
+		s.index++
+		s.line++
 		return nil, nil
 	default:
 		var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.input[s.index])
