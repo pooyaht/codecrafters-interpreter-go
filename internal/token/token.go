@@ -50,6 +50,8 @@ func (t Token) String() string {
 		return fmt.Sprintf("GREATER %s null", t.Type)
 	case GREATER_EQUAL:
 		return fmt.Sprintf("GREATER_EQUAL %s null", t.Type)
+	case STRING:
+		return fmt.Sprintf("STRING %s %s", t.Lexeme, t.Literal)
 	default:
 		return fmt.Sprintf("%s  null", t.Type)
 	}
@@ -85,4 +87,6 @@ const (
 
 	GREATER       TokenType = ">"
 	GREATER_EQUAL TokenType = ">="
+
+	STRING TokenType = "STRING"
 )

@@ -104,6 +104,19 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		s.index++
 		s.line++
 		return nil, nil
+	case '"':
+		s.index++
+		var literal string
+		for !s.isAtEnd() && s.input[s.index] != '"' {
+			literal += string(s.input[s.index])
+			s.index++
+		}
+		if s.isAtEnd() {
+			var err = fmt.Errorf("[line %d] Error: Unterminated string.", s.line)
+			return nil, err
+		}
+		s.index++
+		return &token.Token{Type: token.STRING, Lexeme: fmt.Sprintf("\"%s\"", literal), Literal: literal}, nil
 	default:
 		var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.input[s.index])
 		s.index++
