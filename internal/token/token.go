@@ -11,13 +11,13 @@ type Token struct {
 func (t Token) String() string {
 	switch t.Type {
 	case EOF:
-		return fmt.Sprintf("%s null", t.Type)
+		return fmt.Sprintf("%s  null", t.Type)
 	case LEFT_PAREN:
 		return fmt.Sprintf("LEFT_PAREN %s null", t.Type)
 	case RIGHT_PAREN:
 		return fmt.Sprintf("RIGHT_PAREN %s null", t.Type)
 	default:
-		return fmt.Sprintf("%s null", t.Type)
+		return fmt.Sprintf("%s  null", t.Type)
 	}
 }
 
