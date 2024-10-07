@@ -32,6 +32,10 @@ func (t Token) String() string {
 		return fmt.Sprintf("MINUS %s null", t.Type)
 	case SEMICOLON:
 		return fmt.Sprintf("SEMICOLON %s null", t.Type)
+	case EQUAL:
+		return fmt.Sprintf("EQUAL %s null", t.Type)
+	case EQUAL_EQUAL:
+		return fmt.Sprintf("EQUAL_EQUAL %s null", t.Type)
 	default:
 		return fmt.Sprintf("%s  null", t.Type)
 	}
@@ -54,4 +58,7 @@ const (
 	PLUS      TokenType = "+"
 	MINUS     TokenType = "-"
 	SEMICOLON TokenType = ";"
+
+	EQUAL       TokenType = "="
+	EQUAL_EQUAL TokenType = "=="
 )

@@ -56,6 +56,13 @@ func (s *Scanner) Scan() (*token.Token, error) {
 	case ';':
 		s.index++
 		return &token.Token{Type: token.SEMICOLON, Lexeme: ";", Literal: nil}, nil
+	case '=':
+		s.index++
+		if !s.isAtEnd() && s.input[s.index] == '=' {
+			s.index++
+			return &token.Token{Type: token.EQUAL_EQUAL, Lexeme: "=", Literal: nil}, nil
+		}
+		return &token.Token{Type: token.EQUAL, Lexeme: "=", Literal: nil}, nil
 	default:
 		var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.input[s.index])
 		s.index++
