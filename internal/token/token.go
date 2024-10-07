@@ -16,6 +16,10 @@ func (t Token) String() string {
 		return fmt.Sprintf("LEFT_PAREN %s null", t.Type)
 	case RIGHT_PAREN:
 		return fmt.Sprintf("RIGHT_PAREN %s null", t.Type)
+	case LEFT_BRACE:
+		return fmt.Sprintf("LEFT_BRACE %s null", t.Type)
+	case RIGHT_BRACE:
+		return fmt.Sprintf("RIGHT_BRACE %s null", t.Type)
 	default:
 		return fmt.Sprintf("%s  null", t.Type)
 	}
@@ -28,4 +32,7 @@ const (
 
 	LEFT_PAREN  TokenType = "("
 	RIGHT_PAREN TokenType = ")"
+
+	LEFT_BRACE  TokenType = "{"
+	RIGHT_BRACE TokenType = "}"
 )

@@ -28,6 +28,12 @@ func (s *Scanner) Scan() (token.Token, error) {
 	case ')':
 		s.index++
 		return token.Token{Type: token.RIGHT_PAREN, Lexeme: ")", Literal: nil}, nil
+	case '{':
+		s.index++
+		return token.Token{Type: token.LEFT_BRACE, Lexeme: "{", Literal: nil}, nil
+	case '}':
+		s.index++
+		return token.Token{Type: token.RIGHT_BRACE, Lexeme: "}", Literal: nil}, nil
 	default:
 		return token.Token{Type: token.EOF, Lexeme: "EOF", Literal: nil}, nil
 	}
