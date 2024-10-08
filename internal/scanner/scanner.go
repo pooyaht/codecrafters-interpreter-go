@@ -138,9 +138,18 @@ func (s *Scanner) Scan() (*token.Token, error) {
 
 		return &token.Token{Type: token.NUMBER, Lexeme: literal, Literal: num}, nil
 	default:
-		var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.peak())
-		s.advance()
-		return nil, err
+		if s.isAlpha(s.peak()) {
+			var literal string
+			for s.isAlphaNumeric(s.peak()) {
+				literal += string(s.peak())
+				s.advance()
+			}
+			return &token.Token{Type: token.IDENTIFIER, Lexeme: literal, Literal: nil}, nil
+		} else {
+			var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.peak())
+			s.advance()
+			return nil, err
+		}
 	}
 }
 
@@ -169,4 +178,12 @@ func (s *Scanner) isAtEnd() bool {
 
 func (s *Scanner) isDigit(c byte) bool {
 	return c >= '0' && c <= '9'
+}
+
+func (s *Scanner) isAlpha(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+}
+
+func (s *Scanner) isAlphaNumeric(c byte) bool {
+	return s.isAlpha(c) || s.isDigit(c)
 }

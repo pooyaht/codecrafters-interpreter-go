@@ -58,6 +58,8 @@ func (t Token) String() string {
 		return fmt.Sprintf("STRING %s %s", t.Lexeme, t.Literal)
 	case NUMBER:
 		return fmt.Sprintf("NUMBER %s %s", t.Lexeme, util.FormatFloat(t.Literal.(float64)))
+	case IDENTIFIER:
+		return fmt.Sprintf("IDENTIFIER %s null", t.Lexeme)
 	default:
 		return fmt.Sprintf("%s  null", t.Type)
 	}
@@ -97,4 +99,6 @@ const (
 	STRING TokenType = "STRING"
 
 	NUMBER TokenType = "NUMBER"
+
+	IDENTIFIER TokenType = "IDENTIFIER"
 )
