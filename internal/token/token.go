@@ -1,6 +1,10 @@
 package token
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/codecrafters-io/interpreter-starter-go/internal/util"
+)
 
 type Token struct {
 	Type    TokenType
@@ -52,6 +56,8 @@ func (t Token) String() string {
 		return fmt.Sprintf("GREATER_EQUAL %s null", t.Type)
 	case STRING:
 		return fmt.Sprintf("STRING %s %s", t.Lexeme, t.Literal)
+	case NUMBER:
+		return fmt.Sprintf("NUMBER %s %s", t.Lexeme, util.FormatFloat(t.Literal.(float64)))
 	default:
 		return fmt.Sprintf("%s  null", t.Type)
 	}
@@ -89,4 +95,6 @@ const (
 	GREATER_EQUAL TokenType = ">="
 
 	STRING TokenType = "STRING"
+
+	NUMBER TokenType = "NUMBER"
 )

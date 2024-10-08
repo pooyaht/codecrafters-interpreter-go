@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
@@ -117,6 +118,25 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		}
 		s.index++
 		return &token.Token{Type: token.STRING, Lexeme: fmt.Sprintf("\"%s\"", literal), Literal: literal}, nil
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		var literal string
+		for s.isDigit(s.input[s.index]) {
+			literal += string(s.input[s.index])
+			s.index++
+		}
+
+		if s.input[s.index] == '.' && s.isDigit(s.peak()) {
+			literal += string(s.input[s.index])
+			s.index++
+			for s.isDigit(s.input[s.index]) {
+				literal += string(s.input[s.index])
+				s.index++
+			}
+		}
+
+		num, _ := strconv.ParseFloat(literal, 64)
+
+		return &token.Token{Type: token.NUMBER, Lexeme: literal, Literal: num}, nil
 	default:
 		var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.input[s.index])
 		s.index++
@@ -126,4 +146,15 @@ func (s *Scanner) Scan() (*token.Token, error) {
 
 func (s *Scanner) isAtEnd() bool {
 	return s.index >= len(s.input)
+}
+
+func (s *Scanner) peak() byte {
+	if s.index+1 >= len(s.input) {
+		return 0
+	}
+	return s.input[s.index+1]
+}
+
+func (s *Scanner) isDigit(c byte) bool {
+	return c >= '0' && c <= '9'
 }
