@@ -109,12 +109,12 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		s.advance()
 		var literal string
 		for s.peak() != '"' {
+			if s.isAtEnd() {
+				var err = fmt.Errorf("[line %d] Error: Unterminated string.", s.line)
+				return nil, err
+			}
 			literal += string(s.peak())
 			s.advance()
-		}
-		if s.isAtEnd() {
-			var err = fmt.Errorf("[line %d] Error: Unterminated string.", s.line)
-			return nil, err
 		}
 		s.advance()
 		return &token.Token{Type: token.STRING, Lexeme: fmt.Sprintf("\"%s\"", literal), Literal: literal}, nil
