@@ -144,6 +144,10 @@ func (s *Scanner) Scan() (*token.Token, error) {
 				literal += string(s.peak())
 				s.advance()
 			}
+
+			if keyword, ok := token.Keywords[literal]; ok {
+				return &token.Token{Type: keyword, Lexeme: literal, Literal: nil}, nil
+			}
 			return &token.Token{Type: token.IDENTIFIER, Lexeme: literal, Literal: nil}, nil
 		} else {
 			var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.peak())

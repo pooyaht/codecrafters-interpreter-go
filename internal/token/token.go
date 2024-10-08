@@ -2,6 +2,7 @@ package token
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/util"
 )
@@ -61,7 +62,7 @@ func (t Token) String() string {
 	case IDENTIFIER:
 		return fmt.Sprintf("IDENTIFIER %s null", t.Lexeme)
 	default:
-		return fmt.Sprintf("%s  null", t.Type)
+		return fmt.Sprintf("%s %s null", strings.ToUpper(string(t.Type)), t.Lexeme)
 	}
 }
 
@@ -101,4 +102,40 @@ const (
 	NUMBER TokenType = "NUMBER"
 
 	IDENTIFIER TokenType = "IDENTIFIER"
+
+	AND    TokenType = "AND"
+	CLASS  TokenType = "CLASS"
+	ELSE   TokenType = "ELSE"
+	FALSE  TokenType = "FALSE"
+	FUN    TokenType = "FUN"
+	FOR    TokenType = "FOR"
+	IF     TokenType = "IF"
+	NIL    TokenType = "NIL"
+	OR     TokenType = "OR"
+	PRINT  TokenType = "PRINT"
+	RETURN TokenType = "RETURN"
+	SUPER  TokenType = "SUPER"
+	THIS   TokenType = "THIS"
+	TRUE   TokenType = "TRUE"
+	VAR    TokenType = "VAR"
+	WHILE  TokenType = "WHILE"
 )
+
+var Keywords = map[string]TokenType{
+	"and":    AND,
+	"class":  CLASS,
+	"else":   ELSE,
+	"false":  FALSE,
+	"for":    FOR,
+	"fun":    FUN,
+	"if":     IF,
+	"nil":    NIL,
+	"or":     OR,
+	"print":  PRINT,
+	"return": RETURN,
+	"super":  SUPER,
+	"this":   THIS,
+	"true":   TRUE,
+	"var":    VAR,
+	"while":  WHILE,
+}
