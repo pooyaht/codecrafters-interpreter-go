@@ -46,6 +46,11 @@ func (p *Parser) Parse() {
 			str, _ := expr.Accept(&astPrinter)
 			fmt.Println(str)
 
+		case token.STRING:
+			expr := ast.LiteralExpr{Value: t.Literal}
+			str, _ := expr.Accept(&astPrinter)
+			fmt.Println(str)
+
 		default:
 			return
 		}
