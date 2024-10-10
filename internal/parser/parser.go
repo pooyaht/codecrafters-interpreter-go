@@ -20,42 +20,57 @@ func NewParser(tokens []*token.Token) Parser {
 }
 
 func (p *Parser) Parse() {
+	var printer ast.AstPrinter
+
 	for {
-		t := p.peek()
-
-		astPrinter := ast.AstPrinter{}
-
-		switch t.Type {
-		case token.TRUE:
-			expr := ast.LiteralExpr{Value: true}
-			str, _ := expr.Accept(&astPrinter)
-			fmt.Println(str)
-
-		case token.FALSE:
-			expr := ast.LiteralExpr{Value: false}
-			str, _ := expr.Accept(&astPrinter)
-			fmt.Println(str)
-
-		case token.NIL:
-			expr := ast.LiteralExpr{Value: nil}
-			str, _ := expr.Accept(&astPrinter)
-			fmt.Println(str)
-
-		case token.NUMBER:
-			expr := ast.LiteralExpr{Value: t.Literal}
-			str, _ := expr.Accept(&astPrinter)
-			fmt.Println(str)
-
-		case token.STRING:
-			expr := ast.LiteralExpr{Value: t.Literal}
-			str, _ := expr.Accept(&astPrinter)
-			fmt.Println(str)
-
-		default:
-			return
+		if p.isAtEnd() {
+			break
 		}
 
+		expr := p.ParsePrimaryExpr()
+		if expr == nil {
+			p.advance()
+			continue
+		}
+
+		str, _ := expr.Accept(&printer)
+		fmt.Println(str)
+
 		p.advance()
+	}
+}
+
+func (p *Parser) ParseGroupingExpr() ast.Expr {
+	p.advance()
+	expr := p.ParsePrimaryExpr()
+	p.advance()
+
+	return &ast.GroupingExpr{
+		Expr: expr,
+	}
+}
+
+func (p *Parser) ParsePrimaryExpr() ast.Expr {
+	t := p.peek()
+
+	switch t.Type {
+	case token.NUMBER:
+		fallthrough
+	case token.STRING:
+		return &ast.LiteralExpr{Value: t.Literal}
+
+	case token.TRUE:
+		fallthrough
+	case token.FALSE:
+		fallthrough
+	case token.NIL:
+		return &ast.LiteralExpr{Value: t.Lexeme}
+
+	case token.LEFT_PAREN:
+		return p.ParseGroupingExpr()
+
+	default:
+		return nil
 	}
 }
 
