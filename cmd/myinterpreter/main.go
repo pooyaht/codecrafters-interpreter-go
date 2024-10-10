@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/codecrafters-io/interpreter-starter-go/internal/parser"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/scanner"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
@@ -16,44 +17,53 @@ func main() {
 
 	command := os.Args[1]
 
-	if command != "tokenize" {
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
-		os.Exit(1)
-	}
+	if command == "tokenize" {
 
-	// Uncomment this block to pass the first stage
-
-	filename := os.Args[2]
-	fileContents, err := os.ReadFile(filename)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-		os.Exit(1)
-	}
-
-	scanner := scanner.NewScanner(string(fileContents))
-
-	var errorOccurred bool
-
-	for {
-		t, err := scanner.Scan()
+		filename := os.Args[2]
+		fileContents, err := os.ReadFile(filename)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-			errorOccurred = true
-			continue
+			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+			os.Exit(1)
 		}
 
-		if t == nil {
-			continue
+		scanner := scanner.NewScanner(string(fileContents))
+
+		var errorOccurred bool
+
+		for {
+			t, err := scanner.Scan()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				errorOccurred = true
+				continue
+			}
+
+			if t == nil {
+				continue
+			}
+
+			fmt.Println(t)
+
+			if t.Type == token.EOF {
+				break
+			}
 		}
 
-		fmt.Println(t)
-
-		if t.Type == token.EOF {
-			break
+		if errorOccurred {
+			os.Exit(65)
 		}
-	}
+	} else if command == "parse" {
 
-	if errorOccurred {
-		os.Exit(65)
+		filename := os.Args[2]
+		fileContents, err := os.ReadFile(filename)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+			os.Exit(1)
+		}
+
+		scanner := scanner.NewScanner(string(fileContents))
+		parser := parser.NewParser(scanner)
+		parser.Parse()
+
 	}
 }
