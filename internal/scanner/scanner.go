@@ -8,16 +8,20 @@ import (
 )
 
 type Scanner struct {
-	input string
-	index int
-	line  int
+	input   string
+	tokens  []*token.Token
+	start   int
+	current int
+	line    int
 }
 
 func NewScanner(input string) Scanner {
 	return Scanner{
-		input: input,
-		index: 0,
-		line:  1,
+		input:   input,
+		tokens:  make([]*token.Token, 0),
+		start:   0,
+		current: 0,
+		line:    1,
 	}
 }
 
@@ -25,6 +29,10 @@ func (s *Scanner) Scan() (*token.Token, error) {
 	if s.isAtEnd() {
 		return &token.Token{Type: token.EOF, Lexeme: "EOF", Literal: nil}, nil
 	}
+
+	defer func() {
+		s.start = s.current
+	}()
 
 	switch s.peak() {
 	case '(':
@@ -107,47 +115,45 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		return nil, nil
 	case '"':
 		s.advance()
-		var literal string
 		for s.peak() != '"' {
 			if s.isAtEnd() {
 				var err = fmt.Errorf("[line %d] Error: Unterminated string.", s.line)
 				return nil, err
 			}
-			literal += string(s.peak())
 			s.advance()
 		}
+
+		literal := s.input[s.start+1 : s.current]
 		s.advance()
+
 		return &token.Token{Type: token.STRING, Lexeme: fmt.Sprintf("\"%s\"", literal), Literal: literal}, nil
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-		var literal string
 		for s.isDigit(s.peak()) {
-			literal += string(s.peak())
 			s.advance()
 		}
 
 		if s.peak() == '.' && s.isDigit(s.peakNext()) {
-			literal += string(s.peak())
 			s.advance()
 			for s.isDigit(s.peak()) {
-				literal += string(s.peak())
 				s.advance()
 			}
 		}
 
+		literal := s.input[s.start:s.current]
 		num, _ := strconv.ParseFloat(literal, 64)
 
 		return &token.Token{Type: token.NUMBER, Lexeme: literal, Literal: num}, nil
 	default:
 		if s.isAlpha(s.peak()) {
-			var literal string
 			for s.isAlphaNumeric(s.peak()) {
-				literal += string(s.peak())
 				s.advance()
 			}
 
+			literal := s.input[s.start:s.current]
 			if keyword, ok := token.Keywords[literal]; ok {
 				return &token.Token{Type: keyword, Lexeme: literal, Literal: nil}, nil
 			}
+
 			return &token.Token{Type: token.IDENTIFIER, Lexeme: literal, Literal: nil}, nil
 		} else {
 			var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.peak())
@@ -158,26 +164,26 @@ func (s *Scanner) Scan() (*token.Token, error) {
 }
 
 func (s *Scanner) advance() byte {
-	s.index++
-	return s.input[s.index-1]
+	s.current++
+	return s.input[s.current-1]
 }
 
 func (s *Scanner) peak() byte {
 	if s.isAtEnd() {
 		return 0
 	}
-	return s.input[s.index]
+	return s.input[s.current]
 }
 
 func (s *Scanner) peakNext() byte {
-	if s.index+1 >= len(s.input) {
+	if s.current+1 >= len(s.input) {
 		return 0
 	}
-	return s.input[s.index+1]
+	return s.input[s.current+1]
 }
 
 func (s *Scanner) isAtEnd() bool {
-	return s.index >= len(s.input)
+	return s.current >= len(s.input)
 }
 
 func (s *Scanner) isDigit(c byte) bool {
