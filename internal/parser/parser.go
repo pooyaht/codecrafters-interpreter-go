@@ -4,30 +4,24 @@ import (
 	"fmt"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
-	"github.com/codecrafters-io/interpreter-starter-go/internal/scanner"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
 
 type Parser struct {
-	scanner scanner.Scanner
+	tokens  []*token.Token
+	current int
 }
 
-func NewParser(scanner scanner.Scanner) Parser {
+func NewParser(tokens []*token.Token) Parser {
 	return Parser{
-		scanner: scanner,
+		tokens:  tokens,
+		current: 0,
 	}
 }
 
 func (p *Parser) Parse() {
 	for {
-		t, err := p.scanner.Scan()
-
-		if err != nil {
-			break
-		}
-		if t == nil {
-			continue
-		}
+		t := p.peek()
 
 		astPrinter := ast.AstPrinter{}
 
@@ -51,5 +45,21 @@ func (p *Parser) Parse() {
 			return
 		}
 
+		p.advance()
 	}
+}
+
+func (p *Parser) isAtEnd() bool {
+	return p.current >= len(p.tokens)
+}
+
+func (p *Parser) advance() {
+	p.current++
+}
+
+func (p *Parser) peek() *token.Token {
+	if p.isAtEnd() {
+		return nil
+	}
+	return p.tokens[p.current]
 }

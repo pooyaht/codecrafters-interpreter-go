@@ -18,7 +18,6 @@ func main() {
 	command := os.Args[1]
 
 	if command == "tokenize" {
-
 		filename := os.Args[2]
 		fileContents, err := os.ReadFile(filename)
 		if err != nil {
@@ -27,9 +26,7 @@ func main() {
 		}
 
 		scanner := scanner.NewScanner(string(fileContents))
-
 		var errorOccurred bool
-
 		for {
 			t, err := scanner.Scan()
 			if err != nil {
@@ -62,7 +59,8 @@ func main() {
 		}
 
 		scanner := scanner.NewScanner(string(fileContents))
-		parser := parser.NewParser(scanner)
+		scanner.ScanTokens()
+		parser := parser.NewParser(scanner.Tokens())
 		parser.Parse()
 
 	}

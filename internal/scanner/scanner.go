@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
@@ -22,6 +23,30 @@ func NewScanner(input string) Scanner {
 		start:   0,
 		current: 0,
 		line:    1,
+	}
+}
+
+func (s *Scanner) Tokens() []*token.Token {
+	return s.tokens
+}
+
+func (s *Scanner) ScanTokens() {
+	for {
+		t, err := s.Scan()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			break
+		}
+
+		if t == nil {
+			continue
+		}
+
+		s.tokens = append(s.tokens, t)
+
+		if t.Type == token.EOF {
+			break
+		}
 	}
 }
 
@@ -163,9 +188,8 @@ func (s *Scanner) Scan() (*token.Token, error) {
 	}
 }
 
-func (s *Scanner) advance() byte {
+func (s *Scanner) advance() {
 	s.current++
-	return s.input[s.current-1]
 }
 
 func (s *Scanner) peak() byte {
