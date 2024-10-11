@@ -27,7 +27,7 @@ func (p *Parser) Parse() {
 			break
 		}
 
-		expr := p.ParsePrimaryExpr()
+		expr := p.ParseUnaryExpr()
 		if expr == nil {
 			p.advance()
 			continue
@@ -42,11 +42,23 @@ func (p *Parser) Parse() {
 
 func (p *Parser) ParseGroupingExpr() ast.Expr {
 	p.advance()
-	expr := p.ParsePrimaryExpr()
+	expr := p.ParseUnaryExpr()
 	p.advance()
 
 	return &ast.GroupingExpr{
 		Expr: expr,
+	}
+}
+
+func (p *Parser) ParseUnaryExpr() ast.Expr {
+	if p.peek().Type != token.MINUS && p.peek().Type != token.BANG {
+		return p.ParsePrimaryExpr()
+	}
+
+	p.advance()
+	return &ast.UnaryExpr{
+		Operator: p.peekPrevious(),
+		Right:    p.ParseUnaryExpr(),
 	}
 }
 
@@ -87,4 +99,8 @@ func (p *Parser) peek() *token.Token {
 		return nil
 	}
 	return p.tokens[p.current]
+}
+
+func (p *Parser) peekPrevious() *token.Token {
+	return p.tokens[p.current-1]
 }

@@ -1,5 +1,7 @@
 package ast
 
+import "github.com/codecrafters-io/interpreter-starter-go/internal/token"
+
 type Expr interface {
 	Accept(Visitor) (any, error)
 }
@@ -18,4 +20,13 @@ type GroupingExpr struct {
 
 func (e *GroupingExpr) Accept(v Visitor) (any, error) {
 	return v.VisitGroupingExpr(e)
+}
+
+type UnaryExpr struct {
+	Operator *token.Token
+	Right    Expr
+}
+
+func (e *UnaryExpr) Accept(v Visitor) (any, error) {
+	return v.VisitUnaryExpr(e)
 }
