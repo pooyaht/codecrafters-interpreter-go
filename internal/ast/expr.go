@@ -30,3 +30,13 @@ type UnaryExpr struct {
 func (e *UnaryExpr) Accept(v Visitor) (any, error) {
 	return v.VisitUnaryExpr(e)
 }
+
+type BinaryExpr struct {
+	Left     Expr
+	Operator *token.Token
+	Right    Expr
+}
+
+func (e *BinaryExpr) Accept(v Visitor) (any, error) {
+	return v.VisitBinaryExpr(e)
+}
