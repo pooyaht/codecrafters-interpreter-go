@@ -12,118 +12,109 @@ type Parser struct {
 	current int
 }
 
-func NewParser(tokens []*token.Token) Parser {
-	return Parser{
+func NewParser(tokens []*token.Token) *Parser {
+	return &Parser{
 		tokens:  tokens,
 		current: 0,
 	}
 }
 
-func (p *Parser) Parse() {
+func (p *Parser) Parse() []ast.Expr {
+	var expressions []ast.Expr
 	var printer ast.AstPrinter
-
-	for {
-		if p.isAtEnd() {
-			break
+	for !p.isAtEnd() {
+		expr := p.expression()
+		if expr != nil {
+			str, _ := expr.Accept(&printer)
+			fmt.Println(str)
+			expressions = append(expressions, expr)
 		}
-
-		expr := p.ParseFactorExpr()
-		if expr == nil {
-			p.advance()
-			continue
-		}
-
-		str, _ := expr.Accept(&printer)
-		fmt.Println(str)
-
-		p.advance()
 	}
+	return expressions
 }
 
-func (p *Parser) ParseFactorExpr() ast.Expr {
-	expr := p.ParseUnaryExpr()
-	p.advance()
+func (p *Parser) expression() ast.Expr {
+	return p.factor()
+}
 
-	if p.isAtEnd() {
-		return expr
-	}
+func (p *Parser) factor() ast.Expr {
+	expr := p.unary()
 
-	for p.peek().Type == token.STAR || p.peek().Type == token.SLASH {
-		op := p.peek()
-		p.advance()
-		right := p.ParseUnaryExpr()
-		p.advance()
-		expr = &ast.BinaryExpr{
-			Left:     expr,
-			Operator: op,
-			Right:    right,
-		}
+	for p.match(token.SLASH, token.STAR) {
+		operator := p.previous()
+		right := p.unary()
+		expr = &ast.BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
 
 	return expr
 }
 
-func (p *Parser) ParseGroupingExpr() ast.Expr {
-	p.advance()
-	expr := p.ParseFactorExpr()
-	p.advance()
-
-	return &ast.GroupingExpr{
-		Expr: expr,
+func (p *Parser) unary() ast.Expr {
+	if p.match(token.BANG, token.MINUS) {
+		operator := p.previous()
+		right := p.unary()
+		return &ast.UnaryExpr{Operator: operator, Right: right}
 	}
+
+	return p.primary()
 }
 
-func (p *Parser) ParseUnaryExpr() ast.Expr {
-	if p.peek().Type != token.MINUS && p.peek().Type != token.BANG {
-		return p.ParsePrimaryExpr()
+func (p *Parser) primary() ast.Expr {
+	if p.match(token.FALSE) {
+		return &ast.LiteralExpr{Value: false}
+	}
+	if p.match(token.TRUE) {
+		return &ast.LiteralExpr{Value: true}
+	}
+	if p.match(token.NIL) {
+		return &ast.LiteralExpr{Value: nil}
 	}
 
-	p.advance()
-	return &ast.UnaryExpr{
-		Operator: p.peekPrevious(),
-		Right:    p.ParseUnaryExpr(),
+	if p.match(token.NUMBER, token.STRING) {
+		return &ast.LiteralExpr{Value: p.previous().Literal}
 	}
+
+	if p.match(token.LEFT_PAREN) {
+		expr := p.expression()
+		p.match(token.RIGHT_PAREN)
+		return &ast.GroupingExpr{Expr: expr}
+	}
+
+	return nil
 }
 
-func (p *Parser) ParsePrimaryExpr() ast.Expr {
-	t := p.peek()
-
-	switch t.Type {
-	case token.NUMBER:
-		fallthrough
-	case token.STRING:
-		return &ast.LiteralExpr{Value: t.Literal}
-
-	case token.TRUE:
-		fallthrough
-	case token.FALSE:
-		fallthrough
-	case token.NIL:
-		return &ast.LiteralExpr{Value: t.Lexeme}
-
-	case token.LEFT_PAREN:
-		return p.ParseGroupingExpr()
-
-	default:
-		return nil
+func (p *Parser) match(types ...token.TokenType) bool {
+	for _, t := range types {
+		if p.check(t) {
+			p.advance()
+			return true
+		}
 	}
+	return false
+}
+
+func (p *Parser) check(t token.TokenType) bool {
+	if p.isAtEnd() {
+		return false
+	}
+	return p.peek().Type == t
+}
+
+func (p *Parser) advance() *token.Token {
+	if !p.isAtEnd() {
+		p.current++
+	}
+	return p.previous()
 }
 
 func (p *Parser) isAtEnd() bool {
-	return p.current >= len(p.tokens)
-}
-
-func (p *Parser) advance() {
-	p.current++
+	return p.peek().Type == token.EOF
 }
 
 func (p *Parser) peek() *token.Token {
-	if p.isAtEnd() {
-		return nil
-	}
 	return p.tokens[p.current]
 }
 
-func (p *Parser) peekPrevious() *token.Token {
+func (p *Parser) previous() *token.Token {
 	return p.tokens[p.current-1]
 }
