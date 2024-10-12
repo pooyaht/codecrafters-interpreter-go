@@ -34,7 +34,19 @@ func (p *Parser) Parse() []ast.Expr {
 }
 
 func (p *Parser) expression() ast.Expr {
-	return p.comparison()
+	return p.equality()
+}
+
+func (p *Parser) equality() ast.Expr {
+	expr := p.comparison()
+
+	for p.match(token.BANG_EQUAL, token.EQUAL_EQUAL) {
+		operator := p.previous()
+		right := p.comparison()
+		expr = &ast.BinaryExpr{Left: expr, Operator: operator, Right: right}
+	}
+
+	return expr
 }
 
 func (p *Parser) comparison() ast.Expr {
