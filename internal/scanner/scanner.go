@@ -94,7 +94,7 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		s.advance()
 		if s.peak() == '=' {
 			s.advance()
-			return &token.Token{Type: token.EQUAL_EQUAL, Lexeme: "=", Literal: nil}, nil
+			return &token.Token{Type: token.EQUAL_EQUAL, Lexeme: "==", Literal: nil}, nil
 		}
 		return &token.Token{Type: token.EQUAL, Lexeme: "=", Literal: nil}, nil
 	case '!':
