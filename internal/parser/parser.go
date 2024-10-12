@@ -34,7 +34,19 @@ func (p *Parser) Parse() []ast.Expr {
 }
 
 func (p *Parser) expression() ast.Expr {
-	return p.term()
+	return p.comparison()
+}
+
+func (p *Parser) comparison() ast.Expr {
+	expr := p.term()
+
+	for p.match(token.GREATER, token.GREATER_EQUAL, token.LESS, token.LESS_EQUAL) {
+		operator := p.previous()
+		right := p.unary()
+		expr = &ast.BinaryExpr{Left: expr, Operator: operator, Right: right}
+	}
+
+	return expr
 }
 
 func (p *Parser) term() ast.Expr {
