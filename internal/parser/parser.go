@@ -34,7 +34,19 @@ func (p *Parser) Parse() []ast.Expr {
 }
 
 func (p *Parser) expression() ast.Expr {
-	return p.factor()
+	return p.term()
+}
+
+func (p *Parser) term() ast.Expr {
+	expr := p.factor()
+
+	for p.match(token.MINUS, token.PLUS) {
+		operator := p.previous()
+		right := p.unary()
+		expr = &ast.BinaryExpr{Left: expr, Operator: operator, Right: right}
+	}
+
+	return expr
 }
 
 func (p *Parser) factor() ast.Expr {
