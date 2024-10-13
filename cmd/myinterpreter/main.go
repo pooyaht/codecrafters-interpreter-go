@@ -26,12 +26,10 @@ func main() {
 		}
 
 		scanner := scanner.NewScanner(string(fileContents))
-		var errorOccurred bool
 		for {
 			t, err := scanner.Scan()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
-				errorOccurred = true
 				continue
 			}
 
@@ -46,11 +44,10 @@ func main() {
 			}
 		}
 
-		if errorOccurred {
+		if scanner.HadError {
 			os.Exit(65)
 		}
 	} else if command == "parse" {
-
 		filename := os.Args[2]
 		fileContents, err := os.ReadFile(filename)
 		if err != nil {
@@ -60,8 +57,11 @@ func main() {
 
 		scanner := scanner.NewScanner(string(fileContents))
 		scanner.ScanTokens()
+		if scanner.HadError {
+			os.Exit(65)
+		}
+
 		parser := parser.NewParser(scanner.Tokens())
 		parser.Parse()
-
 	}
 }

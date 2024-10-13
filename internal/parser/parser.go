@@ -2,20 +2,23 @@ package parser
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
 
 type Parser struct {
-	tokens  []*token.Token
-	current int
+	tokens   []*token.Token
+	current  int
+	hadError bool
 }
 
 func NewParser(tokens []*token.Token) *Parser {
 	return &Parser{
-		tokens:  tokens,
-		current: 0,
+		tokens:   tokens,
+		current:  0,
+		hadError: false,
 	}
 }
 
@@ -24,6 +27,11 @@ func (p *Parser) Parse() []ast.Expr {
 	var printer ast.AstPrinter
 	for !p.isAtEnd() {
 		expr := p.expression()
+
+		if p.hadError {
+			os.Exit(65)
+		}
+
 		if expr != nil {
 			str, _ := expr.Accept(&printer)
 			fmt.Println(str)
@@ -112,10 +120,11 @@ func (p *Parser) primary() ast.Expr {
 
 	if p.match(token.LEFT_PAREN) {
 		expr := p.expression()
-		p.match(token.RIGHT_PAREN)
+		p.consume(token.RIGHT_PAREN, "Expect expression")
 		return &ast.GroupingExpr{Expr: expr}
 	}
 
+	p.error(p.peek(), "Expect expression")
 	return nil
 }
 
@@ -127,6 +136,20 @@ func (p *Parser) match(types ...token.TokenType) bool {
 		}
 	}
 	return false
+}
+
+func (p *Parser) consume(t token.TokenType, message string) *token.Token {
+	if p.check(t) {
+		return p.advance()
+	}
+
+	p.error(p.peek(), message)
+	return nil
+}
+
+func (p *Parser) error(token *token.Token, message string) {
+	p.hadError = true
+	fmt.Fprintf(os.Stderr, "[line %d] Error at '%s': %s\n", token.Line, token.Lexeme, message)
 }
 
 func (p *Parser) check(t token.TokenType) bool {

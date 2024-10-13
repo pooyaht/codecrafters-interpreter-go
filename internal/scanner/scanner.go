@@ -9,20 +9,22 @@ import (
 )
 
 type Scanner struct {
-	input   string
-	tokens  []*token.Token
-	start   int
-	current int
-	line    int
+	input    string
+	tokens   []*token.Token
+	HadError bool
+	start    int
+	current  int
+	line     int
 }
 
 func NewScanner(input string) Scanner {
 	return Scanner{
-		input:   input,
-		tokens:  make([]*token.Token, 0),
-		start:   0,
-		current: 0,
-		line:    1,
+		input:    input,
+		tokens:   make([]*token.Token, 0),
+		HadError: false,
+		start:    0,
+		current:  0,
+		line:     1,
 	}
 }
 
@@ -52,7 +54,7 @@ func (s *Scanner) ScanTokens() {
 
 func (s *Scanner) Scan() (*token.Token, error) {
 	if s.isAtEnd() {
-		return &token.Token{Type: token.EOF, Lexeme: "EOF", Literal: nil}, nil
+		return &token.Token{Type: token.EOF, Lexeme: "EOF", Literal: nil, Line: s.line}, nil
 	}
 
 	defer func() {
@@ -62,62 +64,62 @@ func (s *Scanner) Scan() (*token.Token, error) {
 	switch s.peak() {
 	case '(':
 		s.advance()
-		return &token.Token{Type: token.LEFT_PAREN, Lexeme: "(", Literal: nil}, nil
+		return &token.Token{Type: token.LEFT_PAREN, Lexeme: "(", Literal: nil, Line: s.line}, nil
 	case ')':
 		s.advance()
-		return &token.Token{Type: token.RIGHT_PAREN, Lexeme: ")", Literal: nil}, nil
+		return &token.Token{Type: token.RIGHT_PAREN, Lexeme: ")", Literal: nil, Line: s.line}, nil
 	case '{':
 		s.advance()
-		return &token.Token{Type: token.LEFT_BRACE, Lexeme: "{", Literal: nil}, nil
+		return &token.Token{Type: token.LEFT_BRACE, Lexeme: "{", Literal: nil, Line: s.line}, nil
 	case '}':
 		s.advance()
-		return &token.Token{Type: token.RIGHT_BRACE, Lexeme: "}", Literal: nil}, nil
+		return &token.Token{Type: token.RIGHT_BRACE, Lexeme: "}", Literal: nil, Line: s.line}, nil
 	case ',':
 		s.advance()
-		return &token.Token{Type: token.COMMA, Lexeme: ",", Literal: nil}, nil
+		return &token.Token{Type: token.COMMA, Lexeme: ",", Literal: nil, Line: s.line}, nil
 	case '.':
 		s.advance()
-		return &token.Token{Type: token.DOT, Lexeme: ".", Literal: nil}, nil
+		return &token.Token{Type: token.DOT, Lexeme: ".", Literal: nil, Line: s.line}, nil
 	case '*':
 		s.advance()
-		return &token.Token{Type: token.STAR, Lexeme: "*", Literal: nil}, nil
+		return &token.Token{Type: token.STAR, Lexeme: "*", Literal: nil, Line: s.line}, nil
 	case '+':
 		s.advance()
-		return &token.Token{Type: token.PLUS, Lexeme: "+", Literal: nil}, nil
+		return &token.Token{Type: token.PLUS, Lexeme: "+", Literal: nil, Line: s.line}, nil
 	case '-':
 		s.advance()
-		return &token.Token{Type: token.MINUS, Lexeme: "-", Literal: nil}, nil
+		return &token.Token{Type: token.MINUS, Lexeme: "-", Literal: nil, Line: s.line}, nil
 	case ';':
 		s.advance()
-		return &token.Token{Type: token.SEMICOLON, Lexeme: ";", Literal: nil}, nil
+		return &token.Token{Type: token.SEMICOLON, Lexeme: ";", Literal: nil, Line: s.line}, nil
 	case '=':
 		s.advance()
 		if s.peak() == '=' {
 			s.advance()
-			return &token.Token{Type: token.EQUAL_EQUAL, Lexeme: "==", Literal: nil}, nil
+			return &token.Token{Type: token.EQUAL_EQUAL, Lexeme: "==", Literal: nil, Line: s.line}, nil
 		}
-		return &token.Token{Type: token.EQUAL, Lexeme: "=", Literal: nil}, nil
+		return &token.Token{Type: token.EQUAL, Lexeme: "=", Literal: nil, Line: s.line}, nil
 	case '!':
 		s.advance()
 		if s.peak() == '=' {
 			s.advance()
-			return &token.Token{Type: token.BANG_EQUAL, Lexeme: "!=", Literal: nil}, nil
+			return &token.Token{Type: token.BANG_EQUAL, Lexeme: "!=", Literal: nil, Line: s.line}, nil
 		}
-		return &token.Token{Type: token.BANG, Lexeme: "!", Literal: nil}, nil
+		return &token.Token{Type: token.BANG, Lexeme: "!", Literal: nil, Line: s.line}, nil
 	case '<':
 		s.advance()
 		if s.peak() == '=' {
 			s.advance()
-			return &token.Token{Type: token.LESS_EQUAL, Lexeme: "<=", Literal: nil}, nil
+			return &token.Token{Type: token.LESS_EQUAL, Lexeme: "<=", Literal: nil, Line: s.line}, nil
 		}
-		return &token.Token{Type: token.LESS, Lexeme: "<", Literal: nil}, nil
+		return &token.Token{Type: token.LESS, Lexeme: "<", Literal: nil, Line: s.line}, nil
 	case '>':
 		s.advance()
 		if s.peak() == '=' {
 			s.advance()
-			return &token.Token{Type: token.GREATER_EQUAL, Lexeme: ">=", Literal: nil}, nil
+			return &token.Token{Type: token.GREATER_EQUAL, Lexeme: ">=", Literal: nil, Line: s.line}, nil
 		}
-		return &token.Token{Type: token.GREATER, Lexeme: ">", Literal: nil}, nil
+		return &token.Token{Type: token.GREATER, Lexeme: ">", Literal: nil, Line: s.line}, nil
 	case '/':
 		s.advance()
 		if s.peak() == '/' {
@@ -130,7 +132,7 @@ func (s *Scanner) Scan() (*token.Token, error) {
 			}
 			return nil, nil
 		}
-		return &token.Token{Type: token.SLASH, Lexeme: "/", Literal: nil}, nil
+		return &token.Token{Type: token.SLASH, Lexeme: "/", Literal: nil, Line: s.line}, nil
 	case ' ', '\r', '\t':
 		s.advance()
 		return nil, nil
@@ -143,6 +145,7 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		for s.peak() != '"' {
 			if s.isAtEnd() {
 				var err = fmt.Errorf("[line %d] Error: Unterminated string.", s.line)
+				s.HadError = true
 				return nil, err
 			}
 			s.advance()
@@ -151,7 +154,7 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		literal := s.input[s.start+1 : s.current]
 		s.advance()
 
-		return &token.Token{Type: token.STRING, Lexeme: fmt.Sprintf("\"%s\"", literal), Literal: literal}, nil
+		return &token.Token{Type: token.STRING, Lexeme: fmt.Sprintf("\"%s\"", literal), Literal: literal, Line: s.line}, nil
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		for s.isDigit(s.peak()) {
 			s.advance()
@@ -167,7 +170,7 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		literal := s.input[s.start:s.current]
 		num, _ := strconv.ParseFloat(literal, 64)
 
-		return &token.Token{Type: token.NUMBER, Lexeme: literal, Literal: num}, nil
+		return &token.Token{Type: token.NUMBER, Lexeme: literal, Literal: num, Line: s.line}, nil
 	default:
 		if s.isAlpha(s.peak()) {
 			for s.isAlphaNumeric(s.peak()) {
@@ -176,12 +179,13 @@ func (s *Scanner) Scan() (*token.Token, error) {
 
 			literal := s.input[s.start:s.current]
 			if keyword, ok := token.Keywords[literal]; ok {
-				return &token.Token{Type: keyword, Lexeme: literal, Literal: nil}, nil
+				return &token.Token{Type: keyword, Lexeme: literal, Literal: nil, Line: s.line}, nil
 			}
 
-			return &token.Token{Type: token.IDENTIFIER, Lexeme: literal, Literal: nil}, nil
+			return &token.Token{Type: token.IDENTIFIER, Lexeme: literal, Literal: nil, Line: s.line}, nil
 		} else {
 			var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.peak())
+			s.HadError = true
 			s.advance()
 			return nil, err
 		}
