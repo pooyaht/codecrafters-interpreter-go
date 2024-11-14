@@ -79,5 +79,15 @@ func (p *EvaluateVisitor) VisitUnaryExpr(e *UnaryExpr) (any, error) {
 }
 
 func (p *EvaluateVisitor) VisitBinaryExpr(e *BinaryExpr) (any, error) {
-	return nil, nil
+	leftEval, _ := e.Left.Accept(p)
+	rightEval, _ := e.Right.Accept(p)
+
+	switch e.Operator.Type {
+	case token.STAR:
+		return leftEval.(float64) * rightEval.(float64), nil
+	case token.SLASH:
+		return leftEval.(float64) / rightEval.(float64), nil
+	default:
+		panic("not implemented")
+	}
 }
