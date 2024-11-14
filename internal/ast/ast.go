@@ -87,6 +87,10 @@ func (p *EvaluateVisitor) VisitBinaryExpr(e *BinaryExpr) (any, error) {
 		return leftEval.(float64) * rightEval.(float64), nil
 	case token.SLASH:
 		return leftEval.(float64) / rightEval.(float64), nil
+	case token.PLUS:
+		return leftEval.(float64) + rightEval.(float64), nil
+	case token.MINUS:
+		return leftEval.(float64) - rightEval.(float64), nil
 	default:
 		panic("not implemented")
 	}
