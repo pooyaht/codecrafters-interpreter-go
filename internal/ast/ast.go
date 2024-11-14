@@ -51,7 +51,7 @@ func (p *EvaluateVisitor) VisitLiteralExpr(e *LiteralExpr) (any, error) {
 }
 
 func (p *EvaluateVisitor) VisitGroupingExpr(e *GroupingExpr) (any, error) {
-	return nil, nil
+	return e.Expr.Accept(p)
 }
 
 func (p *EvaluateVisitor) VisitUnaryExpr(e *UnaryExpr) (any, error) {
