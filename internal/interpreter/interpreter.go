@@ -27,6 +27,9 @@ func (i *Interpreter) VisitUnaryExpr(e *ast.UnaryExpr) (any, error) {
 
 	switch e.Operator.Type {
 	case token.MINUS:
+		if err := i.checkNumberOperand(rightEval); err != nil {
+			return nil, err
+		}
 		return -rightEval.(float64), nil
 	case token.BANG:
 		return !i.isTruthy(rightEval), nil
@@ -78,4 +81,11 @@ func (i *Interpreter) isTruthy(v any) bool {
 		return b
 	}
 	return true
+}
+
+func (i *Interpreter) checkNumberOperand(operand any) error {
+	if _, ok := operand.(float64); !ok {
+		return fmt.Errorf("Operand must be a number.")
+	}
+	return nil
 }
