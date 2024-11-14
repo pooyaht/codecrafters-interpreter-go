@@ -3,6 +3,7 @@ package ast
 import (
 	"fmt"
 
+	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/util"
 )
 
@@ -55,7 +56,26 @@ func (p *EvaluateVisitor) VisitGroupingExpr(e *GroupingExpr) (any, error) {
 }
 
 func (p *EvaluateVisitor) VisitUnaryExpr(e *UnaryExpr) (any, error) {
-	return nil, nil
+	rightEval, _ := e.Right.Accept(p)
+
+	isTruthy := func(v any) bool {
+		if v == nil {
+			return false
+		}
+		if b, ok := v.(bool); ok {
+			return b
+		}
+		return true
+	}
+
+	switch e.Operator.Type {
+	case token.MINUS:
+		return -rightEval.(float64), nil
+	case token.BANG:
+		return !isTruthy(rightEval), nil
+	default:
+		return nil, fmt.Errorf("unknown operator: %v", e.Operator.Lexeme)
+	}
 }
 
 func (p *EvaluateVisitor) VisitBinaryExpr(e *BinaryExpr) (any, error) {
