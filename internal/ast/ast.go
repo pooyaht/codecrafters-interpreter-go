@@ -93,11 +93,22 @@ func (p *EvaluateVisitor) VisitBinaryExpr(e *BinaryExpr) (any, error) {
 				return leftStr + rightStr, nil
 			}
 		}
-
 		return leftEval.(float64) + rightEval.(float64), nil
 	case token.MINUS:
 		return leftEval.(float64) - rightEval.(float64), nil
+	case token.GREATER:
+		return leftEval.(float64) > rightEval.(float64), nil
+	case token.GREATER_EQUAL:
+		return leftEval.(float64) >= rightEval.(float64), nil
+	case token.LESS:
+		return leftEval.(float64) < rightEval.(float64), nil
+	case token.LESS_EQUAL:
+		return leftEval.(float64) <= rightEval.(float64), nil
+	case token.EQUAL_EQUAL:
+		return leftEval == rightEval, nil
+	case token.BANG_EQUAL:
+		return leftEval != rightEval, nil
 	default:
-		panic("not implemented")
+		return nil, fmt.Errorf("unknown operator: %v", e.Operator.Lexeme)
 	}
 }
