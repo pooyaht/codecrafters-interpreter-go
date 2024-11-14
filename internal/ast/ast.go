@@ -43,3 +43,21 @@ func (p *AstPrinter) VisitBinaryExpr(e *BinaryExpr) (any, error) {
 	rightStr, _ := e.Right.Accept(p)
 	return fmt.Sprintf("(%v %v %v)", e.Operator.Lexeme, leftStr, rightStr), nil
 }
+
+type EvaluateVisitor struct{}
+
+func (p *EvaluateVisitor) VisitLiteralExpr(e *LiteralExpr) (any, error) {
+	return e.Value, nil
+}
+
+func (p *EvaluateVisitor) VisitGroupingExpr(e *GroupingExpr) (any, error) {
+	return nil, nil
+}
+
+func (p *EvaluateVisitor) VisitUnaryExpr(e *UnaryExpr) (any, error) {
+	return nil, nil
+}
+
+func (p *EvaluateVisitor) VisitBinaryExpr(e *BinaryExpr) (any, error) {
+	return nil, nil
+}

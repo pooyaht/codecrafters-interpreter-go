@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
+	"github.com/codecrafters-io/interpreter-starter-go/internal/interpreter"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/parser"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/scanner"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
@@ -70,5 +71,24 @@ func main() {
 			str, _ := node.Accept(astPrinter)
 			fmt.Println(str)
 		}
+	} else if command == "evaluate" {
+		filename := os.Args[2]
+		fileContents, err := os.ReadFile(filename)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+			os.Exit(1)
+		}
+
+		scanner := scanner.NewScanner(string(fileContents))
+		scanner.ScanTokens()
+		if scanner.HadError {
+			os.Exit(65)
+		}
+
+		parser := parser.NewParser(scanner.Tokens())
+		nodes := parser.Parse()
+
+		interpreter := interpreter.NewInterpreter(nodes)
+		interpreter.Interpret()
 	}
 }
