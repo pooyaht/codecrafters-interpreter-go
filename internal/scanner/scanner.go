@@ -2,42 +2,34 @@ package scanner
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
 
 type Scanner struct {
-	input    string
-	tokens   []*token.Token
-	HadError bool
-	start    int
-	current  int
-	line     int
+	input   string
+	tokens  []*token.Token
+	start   int
+	current int
+	line    int
 }
 
 func NewScanner(input string) Scanner {
 	return Scanner{
-		input:    input,
-		tokens:   make([]*token.Token, 0),
-		HadError: false,
-		start:    0,
-		current:  0,
-		line:     1,
+		input:   input,
+		tokens:  make([]*token.Token, 0),
+		start:   0,
+		current: 0,
+		line:    1,
 	}
 }
 
-func (s *Scanner) Tokens() []*token.Token {
-	return s.tokens
-}
-
-func (s *Scanner) ScanTokens() {
+func (s *Scanner) ScanTokens() ([]*token.Token, error) {
 	for {
 		t, err := s.Scan()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-			break
+			return nil, err
 		}
 
 		if t == nil {
@@ -50,6 +42,8 @@ func (s *Scanner) ScanTokens() {
 			break
 		}
 	}
+
+	return s.tokens, nil
 }
 
 func (s *Scanner) Scan() (*token.Token, error) {
@@ -145,7 +139,6 @@ func (s *Scanner) Scan() (*token.Token, error) {
 		for s.peak() != '"' {
 			if s.isAtEnd() {
 				var err = fmt.Errorf("[line %d] Error: Unterminated string.", s.line)
-				s.HadError = true
 				return nil, err
 			}
 			s.advance()
@@ -185,7 +178,6 @@ func (s *Scanner) Scan() (*token.Token, error) {
 			return &token.Token{Type: token.IDENTIFIER, Lexeme: literal, Literal: nil, Line: s.line}, nil
 		} else {
 			var err = fmt.Errorf("[line %d] Error: Unexpected character: %c", s.line, s.peak())
-			s.HadError = true
 			s.advance()
 			return nil, err
 		}

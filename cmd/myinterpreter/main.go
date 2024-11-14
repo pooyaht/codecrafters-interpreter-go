@@ -28,9 +28,11 @@ func main() {
 		}
 
 		scanner := scanner.NewScanner(string(fileContents))
+		hadError := false
 		for {
 			t, err := scanner.Scan()
 			if err != nil {
+				hadError = true
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				continue
 			}
@@ -46,7 +48,7 @@ func main() {
 			}
 		}
 
-		if scanner.HadError {
+		if hadError {
 			os.Exit(65)
 		}
 	} else if command == "parse" {
@@ -58,14 +60,18 @@ func main() {
 		}
 
 		scanner := scanner.NewScanner(string(fileContents))
-		scanner.ScanTokens()
-		if scanner.HadError {
+		tokens, err := scanner.ScanTokens()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(65)
 		}
 
-		parser := parser.NewParser(scanner.Tokens())
+		parser := parser.NewParser(tokens)
 		astPrinter := &ast.AstPrinter{}
 		nodes := parser.Parse()
+		if parser.HadError {
+			os.Exit(65)
+		}
 
 		for _, node := range nodes {
 			str, _ := node.Accept(astPrinter)
@@ -80,15 +86,29 @@ func main() {
 		}
 
 		scanner := scanner.NewScanner(string(fileContents))
-		scanner.ScanTokens()
-		if scanner.HadError {
+		tokens, err := scanner.ScanTokens()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(65)
 		}
 
-		parser := parser.NewParser(scanner.Tokens())
+		parser := parser.NewParser(tokens)
 		nodes := parser.Parse()
+		if parser.HadError {
+			os.Exit(65)
+		}
 
-		interpreter := interpreter.NewInterpreter(nodes)
-		interpreter.Interpret()
+		interpreter := interpreter.Interpreter{}
+		for _, node := range nodes {
+			val, err := node.Accept(&interpreter)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(70)
+			} else if val == nil {
+				fmt.Println("nil")
+			} else {
+				fmt.Println(val)
+			}
+		}
 	}
 }

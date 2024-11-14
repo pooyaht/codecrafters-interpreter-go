@@ -11,14 +11,14 @@ import (
 type Parser struct {
 	tokens   []*token.Token
 	current  int
-	hadError bool
+	HadError bool
 }
 
 func NewParser(tokens []*token.Token) *Parser {
 	return &Parser{
 		tokens:   tokens,
 		current:  0,
-		hadError: false,
+		HadError: false,
 	}
 }
 
@@ -26,8 +26,8 @@ func (p *Parser) Parse() []ast.Expr {
 	var expressions []ast.Expr
 	for !p.isAtEnd() {
 		expr := p.expression()
-		if p.hadError {
-			os.Exit(65)
+		if p.HadError {
+			return nil
 		}
 		if expr != nil {
 			expressions = append(expressions, expr)
@@ -130,7 +130,7 @@ func (p *Parser) consume(t token.TokenType, message string) *token.Token {
 }
 
 func (p *Parser) error(token *token.Token, message string) {
-	p.hadError = true
+	p.HadError = true
 	fmt.Fprintf(os.Stderr, "[line %d] Error at '%s': %s\n", token.Line, token.Lexeme, message)
 }
 
