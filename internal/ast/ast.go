@@ -88,6 +88,12 @@ func (p *EvaluateVisitor) VisitBinaryExpr(e *BinaryExpr) (any, error) {
 	case token.SLASH:
 		return leftEval.(float64) / rightEval.(float64), nil
 	case token.PLUS:
+		if leftStr, leftOk := leftEval.(string); leftOk {
+			if rightStr, rightOk := rightEval.(string); rightOk {
+				return leftStr + rightStr, nil
+			}
+		}
+
 		return leftEval.(float64) + rightEval.(float64), nil
 	case token.MINUS:
 		return leftEval.(float64) - rightEval.(float64), nil
