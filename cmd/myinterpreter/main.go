@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/parser"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/scanner"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
@@ -62,6 +63,12 @@ func main() {
 		}
 
 		parser := parser.NewParser(scanner.Tokens())
-		parser.Parse()
+		astPrinter := &ast.AstPrinter{}
+		nodes := parser.Parse()
+
+		for _, node := range nodes {
+			str, _ := node.Accept(astPrinter)
+			fmt.Println(str)
+		}
 	}
 }

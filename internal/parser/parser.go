@@ -24,17 +24,12 @@ func NewParser(tokens []*token.Token) *Parser {
 
 func (p *Parser) Parse() []ast.Expr {
 	var expressions []ast.Expr
-	var printer ast.AstPrinter
 	for !p.isAtEnd() {
 		expr := p.expression()
-
 		if p.hadError {
 			os.Exit(65)
 		}
-
 		if expr != nil {
-			str, _ := expr.Accept(&printer)
-			fmt.Println(str)
 			expressions = append(expressions, expr)
 		}
 	}
@@ -47,49 +42,41 @@ func (p *Parser) expression() ast.Expr {
 
 func (p *Parser) equality() ast.Expr {
 	expr := p.comparison()
-
 	for p.match(token.BANG_EQUAL, token.EQUAL_EQUAL) {
 		operator := p.previous()
 		right := p.comparison()
 		expr = &ast.BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
-
 	return expr
 }
 
 func (p *Parser) comparison() ast.Expr {
 	expr := p.term()
-
 	for p.match(token.GREATER, token.GREATER_EQUAL, token.LESS, token.LESS_EQUAL) {
 		operator := p.previous()
-		right := p.unary()
+		right := p.term()
 		expr = &ast.BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
-
 	return expr
 }
 
 func (p *Parser) term() ast.Expr {
 	expr := p.factor()
-
 	for p.match(token.MINUS, token.PLUS) {
 		operator := p.previous()
-		right := p.unary()
+		right := p.factor()
 		expr = &ast.BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
-
 	return expr
 }
 
 func (p *Parser) factor() ast.Expr {
 	expr := p.unary()
-
 	for p.match(token.SLASH, token.STAR) {
 		operator := p.previous()
 		right := p.unary()
 		expr = &ast.BinaryExpr{Left: expr, Operator: operator, Right: right}
 	}
-
 	return expr
 }
 
@@ -99,7 +86,6 @@ func (p *Parser) unary() ast.Expr {
 		right := p.unary()
 		return &ast.UnaryExpr{Operator: operator, Right: right}
 	}
-
 	return p.primary()
 }
 
@@ -113,17 +99,14 @@ func (p *Parser) primary() ast.Expr {
 	if p.match(token.NIL) {
 		return &ast.LiteralExpr{Value: nil}
 	}
-
 	if p.match(token.NUMBER, token.STRING) {
 		return &ast.LiteralExpr{Value: p.previous().Literal}
 	}
-
 	if p.match(token.LEFT_PAREN) {
 		expr := p.expression()
-		p.consume(token.RIGHT_PAREN, "Expect expression")
+		p.consume(token.RIGHT_PAREN, "Expect ')' after expression")
 		return &ast.GroupingExpr{Expr: expr}
 	}
-
 	p.error(p.peek(), "Expect expression")
 	return nil
 }
@@ -142,7 +125,6 @@ func (p *Parser) consume(t token.TokenType, message string) *token.Token {
 	if p.check(t) {
 		return p.advance()
 	}
-
 	p.error(p.peek(), message)
 	return nil
 }
