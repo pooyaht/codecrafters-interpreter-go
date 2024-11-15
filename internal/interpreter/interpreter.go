@@ -45,8 +45,14 @@ func (i *Interpreter) VisitBinaryExpr(e *ast.BinaryExpr) (any, error) {
 
 	switch e.Operator.Type {
 	case token.STAR:
+		if err := i.checkNumberOperands(e.Operator, leftEval, rightEval); err != nil {
+			return nil, err
+		}
 		return leftEval.(float64) * rightEval.(float64), nil
 	case token.SLASH:
+		if err := i.checkNumberOperands(e.Operator, leftEval, rightEval); err != nil {
+			return nil, err
+		}
 		return leftEval.(float64) / rightEval.(float64), nil
 	case token.PLUS:
 		if leftStr, leftOk := leftEval.(string); leftOk {
@@ -88,5 +94,16 @@ func (i *Interpreter) checkNumberOperand(operator *token.Token, operand any) err
 	if _, ok := operand.(float64); !ok {
 		return cerror.RuntimeError{Message: "Operand must be a number.", Line: operator.Line}
 	}
+	return nil
+}
+
+func (i *Interpreter) checkNumberOperands(operator *token.Token, left, right any) error {
+	_, leftOk := left.(float64)
+	_, rightOk := right.(float64)
+
+	if !leftOk || !rightOk {
+		return cerror.RuntimeError{Message: "Operands must be numbers.", Line: operator.Line}
+	}
+
 	return nil
 }
