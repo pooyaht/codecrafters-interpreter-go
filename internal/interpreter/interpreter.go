@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
+	cerror "github.com/codecrafters-io/interpreter-starter-go/internal/error"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
 
@@ -27,14 +28,14 @@ func (i *Interpreter) VisitUnaryExpr(e *ast.UnaryExpr) (any, error) {
 
 	switch e.Operator.Type {
 	case token.MINUS:
-		if err := i.checkNumberOperand(rightEval); err != nil {
+		if err := i.checkNumberOperand(e.Operator, rightEval); err != nil {
 			return nil, err
 		}
 		return -rightEval.(float64), nil
 	case token.BANG:
 		return !i.isTruthy(rightEval), nil
 	default:
-		return nil, fmt.Errorf("unknown operator: %v", e.Operator.Lexeme)
+		return nil, fmt.Errorf("unknown operator: %v at line %v", e.Operator.Lexeme, e.Operator.Line)
 	}
 }
 
@@ -83,9 +84,9 @@ func (i *Interpreter) isTruthy(v any) bool {
 	return true
 }
 
-func (i *Interpreter) checkNumberOperand(operand any) error {
+func (i *Interpreter) checkNumberOperand(operator *token.Token, operand any) error {
 	if _, ok := operand.(float64); !ok {
-		return fmt.Errorf("Operand must be a number.")
+		return cerror.RuntimeError{Message: "Operand must be a number.", Line: operator.Line}
 	}
 	return nil
 }
