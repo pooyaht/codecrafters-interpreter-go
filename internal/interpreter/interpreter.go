@@ -60,8 +60,15 @@ func (i *Interpreter) VisitBinaryExpr(e *ast.BinaryExpr) (any, error) {
 				return leftStr + rightStr, nil
 			}
 		}
+
+		if err := i.checkNumberOperands(e.Operator, leftEval, rightEval); err != nil {
+			return nil, err
+		}
 		return leftEval.(float64) + rightEval.(float64), nil
 	case token.MINUS:
+		if err := i.checkNumberOperands(e.Operator, leftEval, rightEval); err != nil {
+			return nil, err
+		}
 		return leftEval.(float64) - rightEval.(float64), nil
 	case token.GREATER:
 		return leftEval.(float64) > rightEval.(float64), nil
