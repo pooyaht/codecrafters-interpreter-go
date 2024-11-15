@@ -71,12 +71,24 @@ func (i *Interpreter) VisitBinaryExpr(e *ast.BinaryExpr) (any, error) {
 		}
 		return leftEval.(float64) - rightEval.(float64), nil
 	case token.GREATER:
+		if err := i.checkNumberOperands(e.Operator, leftEval, rightEval); err != nil {
+			return nil, err
+		}
 		return leftEval.(float64) > rightEval.(float64), nil
 	case token.GREATER_EQUAL:
+		if err := i.checkNumberOperands(e.Operator, leftEval, rightEval); err != nil {
+			return nil, err
+		}
 		return leftEval.(float64) >= rightEval.(float64), nil
 	case token.LESS:
+		if err := i.checkNumberOperands(e.Operator, leftEval, rightEval); err != nil {
+			return nil, err
+		}
 		return leftEval.(float64) < rightEval.(float64), nil
 	case token.LESS_EQUAL:
+		if err := i.checkNumberOperands(e.Operator, leftEval, rightEval); err != nil {
+			return nil, err
+		}
 		return leftEval.(float64) <= rightEval.(float64), nil
 	case token.EQUAL_EQUAL:
 		return leftEval == rightEval, nil
