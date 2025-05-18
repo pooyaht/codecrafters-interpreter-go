@@ -16,7 +16,10 @@ func (i *Interpreter) Interpret(expr ast.Expr) (any, error) {
 }
 
 func (i *Interpreter) VisitPrintStmt(s *ast.PrintStmt) (any, error) {
-	value, _ := s.Expr.Accept(i)
+	value, err := s.Expr.Accept(i)
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println(value)
 	return nil, nil
 }

@@ -1,3 +1,2 @@
-print "the expression below is invalid";
-49 + "baz";
-print "this should not be printed";
+print "42" + "hello";
+print false * (12 + 77);
