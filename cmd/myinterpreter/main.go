@@ -68,7 +68,7 @@ func main() {
 
 		parser := parser.NewParser(tokens)
 		astPrinter := &ast.AstPrinter{}
-		nodes := parser.Parse()
+		nodes := parser.ParseExpressions()
 		if parser.HadError {
 			os.Exit(65)
 		}
@@ -77,7 +77,41 @@ func main() {
 			str, _ := node.Accept(astPrinter)
 			fmt.Println(str)
 		}
+
 	} else if command == "evaluate" {
+		filename := os.Args[2]
+		fileContents, err := os.ReadFile(filename)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+			os.Exit(1)
+		}
+
+		scanner := scanner.NewScanner(string(fileContents))
+		tokens, err := scanner.ScanTokens()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			os.Exit(65)
+		}
+
+		parser := parser.NewParser(tokens)
+		nodes := parser.ParseExpressions()
+		if parser.HadError {
+			os.Exit(65)
+		}
+
+		interpreter := interpreter.Interpreter{}
+		for _, node := range nodes {
+			val, err := node.Accept(&interpreter)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(70)
+			} else if val == nil {
+				fmt.Println("nil")
+			} else {
+				fmt.Println(val)
+			}
+		}
+	} else if command == "run" {
 		filename := os.Args[2]
 		fileContents, err := os.ReadFile(filename)
 		if err != nil {

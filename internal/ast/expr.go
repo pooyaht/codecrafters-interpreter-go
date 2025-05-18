@@ -3,14 +3,14 @@ package ast
 import "github.com/codecrafters-io/interpreter-starter-go/internal/token"
 
 type Expr interface {
-	Accept(Visitor) (any, error)
+	Accept(ExprVisitor) (any, error)
 }
 
 type LiteralExpr struct {
 	Value any
 }
 
-func (e *LiteralExpr) Accept(v Visitor) (any, error) {
+func (e *LiteralExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitLiteralExpr(e)
 }
 
@@ -18,7 +18,7 @@ type GroupingExpr struct {
 	Expr Expr
 }
 
-func (e *GroupingExpr) Accept(v Visitor) (any, error) {
+func (e *GroupingExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitGroupingExpr(e)
 }
 
@@ -27,7 +27,7 @@ type UnaryExpr struct {
 	Right    Expr
 }
 
-func (e *UnaryExpr) Accept(v Visitor) (any, error) {
+func (e *UnaryExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitUnaryExpr(e)
 }
 
@@ -37,6 +37,6 @@ type BinaryExpr struct {
 	Right    Expr
 }
 
-func (e *BinaryExpr) Accept(v Visitor) (any, error) {
+func (e *BinaryExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitBinaryExpr(e)
 }

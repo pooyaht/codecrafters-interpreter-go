@@ -15,6 +15,16 @@ func (i *Interpreter) Interpret(expr ast.Expr) (any, error) {
 	return expr.Accept(i)
 }
 
+func (i *Interpreter) VisitPrintStmt(s *ast.PrintStmt) (any, error) {
+	value, _ := s.Expr.Accept(i)
+	return value, nil
+}
+
+func (i *Interpreter) VisitExpressionStmt(s *ast.ExpressionStmt) (any, error) {
+	s.Expr.Accept(i)
+	return nil, nil
+}
+
 func (i *Interpreter) VisitLiteralExpr(e *ast.LiteralExpr) (any, error) {
 	return e.Value, nil
 }

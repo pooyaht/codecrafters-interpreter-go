@@ -6,14 +6,27 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/internal/util"
 )
 
-type Visitor interface {
+type ExprVisitor interface {
 	VisitLiteralExpr(*LiteralExpr) (any, error)
 	VisitGroupingExpr(*GroupingExpr) (any, error)
 	VisitUnaryExpr(*UnaryExpr) (any, error)
 	VisitBinaryExpr(*BinaryExpr) (any, error)
 }
 
+type StmtVisitor interface {
+	VisitPrintStmt(*PrintStmt) (any, error)
+	VisitExpressionStmt(*ExpressionStmt) (any, error)
+}
+
 type AstPrinter struct {
+}
+
+func (p *AstPrinter) VisitPrintStmt(s *PrintStmt) (any, error) {
+	return nil, nil
+}
+
+func (p *AstPrinter) VisitExpressionStmt(s *ExpressionStmt) (any, error) {
+	return nil, nil
 }
 
 func (p *AstPrinter) VisitLiteralExpr(e *LiteralExpr) (any, error) {

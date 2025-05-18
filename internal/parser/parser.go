@@ -22,7 +22,22 @@ func NewParser(tokens []*token.Token) *Parser {
 	}
 }
 
-func (p *Parser) Parse() []ast.Expr {
+func (p *Parser) Parse() []ast.Stmt {
+	var statements []ast.Stmt
+	for !p.isAtEnd() {
+		stmt := p.statement()
+		if p.HadError {
+			return nil
+		}
+		if stmt != nil {
+			statements = append(statements, stmt)
+		}
+	}
+	return statements
+}
+
+// for tests backward compatibility
+func (p *Parser) ParseExpressions() []ast.Expr {
 	var expressions []ast.Expr
 	for !p.isAtEnd() {
 		expr := p.expression()
@@ -34,6 +49,26 @@ func (p *Parser) Parse() []ast.Expr {
 		}
 	}
 	return expressions
+}
+
+func (p *Parser) statement() ast.Stmt {
+	if p.match(token.PRINT) {
+		return p.printStatement()
+	}
+
+	return p.expressionStatement()
+}
+
+func (p *Parser) printStatement() ast.Stmt {
+	expr := p.expression()
+	p.consume(token.SEMICOLON, "Expect ';' after value.")
+	return &ast.PrintStmt{Expr: expr}
+}
+
+func (p *Parser) expressionStatement() ast.Stmt {
+	expr := p.expression()
+	p.consume(token.SEMICOLON, "Expect ';' after value.")
+	return &ast.ExpressionStmt{Expr: expr}
 }
 
 func (p *Parser) expression() ast.Expr {
