@@ -17,12 +17,13 @@ func (i *Interpreter) Interpret(expr ast.Expr) (any, error) {
 
 func (i *Interpreter) VisitPrintStmt(s *ast.PrintStmt) (any, error) {
 	value, _ := s.Expr.Accept(i)
-	return value, nil
+	fmt.Println(value)
+	return nil, nil
 }
 
 func (i *Interpreter) VisitExpressionStmt(s *ast.ExpressionStmt) (any, error) {
-	s.Expr.Accept(i)
-	return nil, nil
+	_, err := s.Expr.Accept(i)
+	return nil, err
 }
 
 func (i *Interpreter) VisitLiteralExpr(e *ast.LiteralExpr) (any, error) {

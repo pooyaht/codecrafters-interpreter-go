@@ -138,9 +138,7 @@ func main() {
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(70)
-			} else if val == nil {
-				fmt.Println("nil")
-			} else {
+			} else if val != nil {
 				fmt.Println(val)
 			}
 		}
