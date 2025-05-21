@@ -40,3 +40,11 @@ type BinaryExpr struct {
 func (e *BinaryExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitBinaryExpr(e)
 }
+
+type VariableExpr struct {
+	Name token.Token
+}
+
+func (e *VariableExpr) Accept(v ExprVisitor) (any, error) {
+	return v.VisitVariableExpr(e)
+}

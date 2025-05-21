@@ -11,11 +11,13 @@ type ExprVisitor interface {
 	VisitGroupingExpr(*GroupingExpr) (any, error)
 	VisitUnaryExpr(*UnaryExpr) (any, error)
 	VisitBinaryExpr(*BinaryExpr) (any, error)
+	VisitVariableExpr(*VariableExpr) (any, error)
 }
 
 type StmtVisitor interface {
 	VisitPrintStmt(*PrintStmt) (any, error)
 	VisitExpressionStmt(*ExpressionStmt) (any, error)
+	VisitVarStmt(*VarStatement) (any, error)
 }
 
 type AstPrinter struct {
@@ -26,6 +28,10 @@ func (p *AstPrinter) VisitPrintStmt(s *PrintStmt) (any, error) {
 }
 
 func (p *AstPrinter) VisitExpressionStmt(s *ExpressionStmt) (any, error) {
+	return nil, nil
+}
+
+func (p *AstPrinter) VisitVarStmt(s *ExpressionStmt) (any, error) {
 	return nil, nil
 }
 
@@ -55,4 +61,8 @@ func (p *AstPrinter) VisitBinaryExpr(e *BinaryExpr) (any, error) {
 	leftStr, _ := e.Left.Accept(p)
 	rightStr, _ := e.Right.Accept(p)
 	return fmt.Sprintf("(%v %v %v)", e.Operator.Lexeme, leftStr, rightStr), nil
+}
+
+func (p *AstPrinter) VisitVariableExpr(e *VariableExpr) (any, error) {
+	return e.Name.Lexeme, nil
 }

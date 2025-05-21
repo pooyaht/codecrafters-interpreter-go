@@ -132,7 +132,7 @@ func main() {
 			os.Exit(65)
 		}
 
-		interpreter := interpreter.Interpreter{}
+		interpreter := interpreter.NewInterpreter()
 		for _, node := range nodes {
 			val, err := node.Accept(&interpreter)
 			if err != nil {

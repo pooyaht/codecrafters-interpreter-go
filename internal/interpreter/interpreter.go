@@ -9,6 +9,13 @@ import (
 )
 
 type Interpreter struct {
+	environment Environment
+}
+
+func NewInterpreter() Interpreter {
+	return Interpreter{
+		environment: NewEnvironment(),
+	}
 }
 
 func (i *Interpreter) Interpret(expr ast.Expr) (any, error) {
@@ -21,6 +28,26 @@ func (i *Interpreter) VisitPrintStmt(s *ast.PrintStmt) (any, error) {
 		return nil, err
 	}
 	fmt.Println(value)
+	return nil, nil
+}
+
+func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {
+	return i.environment.get(e.Name)
+}
+
+func (i *Interpreter) VisitVarStmt(s *ast.VarStatement) (any, error) {
+	var value any = nil
+	var err error
+
+	if s.Initializer != nil {
+		value, err = s.Initializer.Accept(i)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	i.environment.define(s.Name.Lexeme, value)
+
 	return nil, nil
 }
 

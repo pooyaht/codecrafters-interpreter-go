@@ -25,7 +25,7 @@ func NewParser(tokens []*token.Token) *Parser {
 func (p *Parser) Parse() []ast.Stmt {
 	var statements []ast.Stmt
 	for !p.isAtEnd() {
-		stmt := p.statement()
+		stmt := p.decleration()
 		if p.HadError {
 			return nil
 		}
@@ -49,6 +49,25 @@ func (p *Parser) ParseExpressions() []ast.Expr {
 		}
 	}
 	return expressions
+}
+
+func (p *Parser) decleration() ast.Stmt {
+	if p.match(token.VAR) {
+		return p.varDecleration()
+	}
+
+	return p.statement()
+}
+
+func (p *Parser) varDecleration() ast.Stmt {
+	name := p.consume(token.IDENTIFIER, "expect variable name")
+	var initializer ast.Expr = nil
+	if p.match(token.EQUAL) {
+		initializer = p.expression()
+	}
+
+	p.consume(token.SEMICOLON, "expect ';' after variable declaration")
+	return &ast.VarStatement{Name: *name, Initializer: initializer}
 }
 
 func (p *Parser) statement() ast.Stmt {
@@ -141,6 +160,9 @@ func (p *Parser) primary() ast.Expr {
 		expr := p.expression()
 		p.consume(token.RIGHT_PAREN, "Expect ')' after expression")
 		return &ast.GroupingExpr{Expr: expr}
+	}
+	if p.match(token.IDENTIFIER) {
+		return &ast.VariableExpr{Name: *p.previous()}
 	}
 	p.error(p.peek(), "Expect expression")
 	return nil

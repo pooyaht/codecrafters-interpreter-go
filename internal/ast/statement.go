@@ -1,11 +1,17 @@
 package ast
 
+import "github.com/codecrafters-io/interpreter-starter-go/internal/token"
+
 type Stmt interface {
 	Accept(StmtVisitor) (any, error)
 }
 
 type PrintStmt struct {
 	Expr Expr
+}
+
+func (s *PrintStmt) Accept(v StmtVisitor) (any, error) {
+	return v.VisitPrintStmt(s)
 }
 
 type ExpressionStmt struct {
@@ -16,6 +22,11 @@ func (s *ExpressionStmt) Accept(v StmtVisitor) (any, error) {
 	return v.VisitExpressionStmt(s)
 }
 
-func (s *PrintStmt) Accept(v StmtVisitor) (any, error) {
-	return v.VisitPrintStmt(s)
+type VarStatement struct {
+	Name        token.Token
+	Initializer Expr
+}
+
+func (s *VarStatement) Accept(v StmtVisitor) (any, error) {
+	return v.VisitVarStmt(s)
 }
