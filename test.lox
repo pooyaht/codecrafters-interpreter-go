@@ -1,5 +1,6 @@
-var bar = 99;
-var foo = 99;
-print bar + foo;
-var quz = 99;
-print bar + foo + quz;
+var quz = 73 + 26 * 20;
+print quz;
+var hello = 26 * 20;
+print quz + hello;
+var foo;
+print foo;

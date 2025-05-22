@@ -27,7 +27,11 @@ func (i *Interpreter) VisitPrintStmt(s *ast.PrintStmt) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(value)
+	if value == nil {
+		fmt.Println("nil")
+	} else {
+		fmt.Println(value)
+	}
 	return nil, nil
 }
 
