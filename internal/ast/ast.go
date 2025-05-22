@@ -31,7 +31,7 @@ func (p *AstPrinter) VisitExpressionStmt(s *ExpressionStmt) (any, error) {
 	return nil, nil
 }
 
-func (p *AstPrinter) VisitVarStmt(s *ExpressionStmt) (any, error) {
+func (p *AstPrinter) VisitVarStmt(s *VarStatement) (any, error) {
 	return nil, nil
 }
 
