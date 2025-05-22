@@ -24,6 +24,15 @@ func (e *Environment) get(name token.Token) (any, error) {
 	return nil, fmt.Errorf("undefined varialbe %s", name.Lexeme)
 }
 
+func (e *Environment) assign(name token.Token, value any) (any, error) {
+	if _, ok := e.values[name.Lexeme]; ok {
+		e.values[name.Lexeme] = value
+		return nil, nil
+	}
+
+	return nil, fmt.Errorf("undefined varialbe %s", name.Lexeme)
+}
+
 func (e *Environment) define(name string, value any) {
 	e.values[name] = value
 }

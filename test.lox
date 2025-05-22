@@ -1,6 +1,6 @@
-var quz = 73 + 26 * 20;
+var quz;
+var hello;
+
+quz = hello = 16 + 34 * 92;
 print quz;
-var hello = 26 * 20;
-print quz + hello;
-var foo;
-print foo;
+print hello;

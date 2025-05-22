@@ -91,7 +91,27 @@ func (p *Parser) expressionStatement() ast.Stmt {
 }
 
 func (p *Parser) expression() ast.Expr {
-	return p.equality()
+	return p.assignment()
+}
+
+func (p *Parser) assignment() ast.Expr {
+	expr := p.equality()
+
+	if p.match(token.EQUAL) {
+		equals := *p.previous()
+		value := p.assignment()
+
+		if varExpr, ok := expr.(*ast.VariableExpr); ok {
+			return &ast.AssignmentExpr{
+				Name:  varExpr.Name,
+				Value: value,
+			}
+		}
+
+		p.error(&equals, "invalid assignment target")
+	}
+
+	return expr
 }
 
 func (p *Parser) equality() ast.Expr {
