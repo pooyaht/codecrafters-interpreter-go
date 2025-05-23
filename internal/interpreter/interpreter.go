@@ -162,14 +162,14 @@ func (i *Interpreter) isTruthy(v any) bool {
 	return true
 }
 
-func (i *Interpreter) checkNumberOperand(operator *token.Token, operand any) error {
+func (i *Interpreter) checkNumberOperand(operator token.Token, operand any) error {
 	if _, ok := operand.(float64); !ok {
 		return cerror.RuntimeError{Message: "Operand must be a number.", Line: operator.Line}
 	}
 	return nil
 }
 
-func (i *Interpreter) checkNumberOperands(operator *token.Token, left, right any) error {
+func (i *Interpreter) checkNumberOperands(operator token.Token, left, right any) error {
 	_, leftOk := left.(float64)
 	_, rightOk := right.(float64)
 

@@ -23,7 +23,7 @@ func (e *GroupingExpr) Accept(v ExprVisitor) (any, error) {
 }
 
 type UnaryExpr struct {
-	Operator *token.Token
+	Operator token.Token
 	Right    Expr
 }
 
@@ -33,7 +33,7 @@ func (e *UnaryExpr) Accept(v ExprVisitor) (any, error) {
 
 type BinaryExpr struct {
 	Left     Expr
-	Operator *token.Token
+	Operator token.Token
 	Right    Expr
 }
 

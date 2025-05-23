@@ -9,7 +9,7 @@ import (
 
 type Scanner struct {
 	input   string
-	tokens  []*token.Token
+	tokens  []token.Token
 	start   int
 	current int
 	line    int
@@ -18,14 +18,14 @@ type Scanner struct {
 func NewScanner(input string) Scanner {
 	return Scanner{
 		input:   input,
-		tokens:  make([]*token.Token, 0),
+		tokens:  make([]token.Token, 0),
 		start:   0,
 		current: 0,
 		line:    1,
 	}
 }
 
-func (s *Scanner) ScanTokens() ([]*token.Token, error) {
+func (s *Scanner) ScanTokens() ([]token.Token, error) {
 	for {
 		t, err := s.Scan()
 		if err != nil {
@@ -36,7 +36,7 @@ func (s *Scanner) ScanTokens() ([]*token.Token, error) {
 			continue
 		}
 
-		s.tokens = append(s.tokens, t)
+		s.tokens = append(s.tokens, *t)
 
 		if t.Type == token.EOF {
 			break

@@ -9,12 +9,12 @@ import (
 )
 
 type Parser struct {
-	tokens   []*token.Token
+	tokens   []token.Token
 	current  int
 	HadError bool
 }
 
-func NewParser(tokens []*token.Token) *Parser {
+func NewParser(tokens []token.Token) *Parser {
 	return &Parser{
 		tokens:   tokens,
 		current:  0,
@@ -98,7 +98,7 @@ func (p *Parser) assignment() ast.Expr {
 	expr := p.equality()
 
 	if p.match(token.EQUAL) {
-		equals := *p.previous()
+		equals := p.previous()
 		value := p.assignment()
 
 		if varExpr, ok := expr.(*ast.VariableExpr); ok {
@@ -108,7 +108,7 @@ func (p *Parser) assignment() ast.Expr {
 			}
 		}
 
-		p.error(&equals, "invalid assignment target")
+		p.error(equals, "invalid assignment target")
 	}
 
 	return expr
@@ -182,7 +182,7 @@ func (p *Parser) primary() ast.Expr {
 		return &ast.GroupingExpr{Expr: expr}
 	}
 	if p.match(token.IDENTIFIER) {
-		return &ast.VariableExpr{Name: *p.previous()}
+		return &ast.VariableExpr{Name: p.previous()}
 	}
 	p.error(p.peek(), "Expect expression")
 	return nil
@@ -200,13 +200,14 @@ func (p *Parser) match(types ...token.TokenType) bool {
 
 func (p *Parser) consume(t token.TokenType, message string) *token.Token {
 	if p.check(t) {
-		return p.advance()
+		token := p.advance()
+		return &token
 	}
 	p.error(p.peek(), message)
 	return nil
 }
 
-func (p *Parser) error(token *token.Token, message string) {
+func (p *Parser) error(token token.Token, message string) {
 	p.HadError = true
 	fmt.Fprintf(os.Stderr, "[line %d] Error at '%s': %s\n", token.Line, token.Lexeme, message)
 }
@@ -218,7 +219,7 @@ func (p *Parser) check(t token.TokenType) bool {
 	return p.peek().Type == t
 }
 
-func (p *Parser) advance() *token.Token {
+func (p *Parser) advance() token.Token {
 	if !p.isAtEnd() {
 		p.current++
 	}
@@ -229,10 +230,10 @@ func (p *Parser) isAtEnd() bool {
 	return p.peek().Type == token.EOF
 }
 
-func (p *Parser) peek() *token.Token {
+func (p *Parser) peek() token.Token {
 	return p.tokens[p.current]
 }
 
-func (p *Parser) previous() *token.Token {
+func (p *Parser) previous() token.Token {
 	return p.tokens[p.current-1]
 }
