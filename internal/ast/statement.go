@@ -22,12 +22,12 @@ func (s *ExpressionStmt) Accept(v StmtVisitor) (any, error) {
 	return v.VisitExpressionStmt(s)
 }
 
-type VarStatement struct {
+type VarStmt struct {
 	Name        token.Token
 	Initializer Expr
 }
 
-func (s *VarStatement) Accept(v StmtVisitor) (any, error) {
+func (s *VarStmt) Accept(v StmtVisitor) (any, error) {
 	return v.VisitVarStmt(s)
 }
 

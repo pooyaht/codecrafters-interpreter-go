@@ -67,7 +67,7 @@ func (p *Parser) varDecleration() ast.Stmt {
 	}
 
 	p.consume(token.SEMICOLON, "expect ';' after variable declaration")
-	return &ast.VarStatement{Name: *name, Initializer: initializer}
+	return &ast.VarStmt{Name: *name, Initializer: initializer}
 }
 
 func (p *Parser) statement() ast.Stmt {

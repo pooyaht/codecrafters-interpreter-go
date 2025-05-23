@@ -18,7 +18,7 @@ type ExprVisitor interface {
 type StmtVisitor interface {
 	VisitPrintStmt(*PrintStmt) (any, error)
 	VisitExpressionStmt(*ExpressionStmt) (any, error)
-	VisitVarStmt(*VarStatement) (any, error)
+	VisitVarStmt(*VarStmt) (any, error)
 	VisitBlockStmt(*BlockStmt) (any, error)
 }
 
@@ -33,7 +33,7 @@ func (p *AstPrinter) VisitExpressionStmt(s *ExpressionStmt) (any, error) {
 	return nil, nil
 }
 
-func (p *AstPrinter) VisitVarStmt(s *VarStatement) (any, error) {
+func (p *AstPrinter) VisitVarStmt(s *VarStmt) (any, error) {
 	return nil, nil
 }
 

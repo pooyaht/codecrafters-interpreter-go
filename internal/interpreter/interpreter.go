@@ -35,7 +35,7 @@ func (i *Interpreter) VisitPrintStmt(s *ast.PrintStmt) (any, error) {
 	return nil, nil
 }
 
-func (i *Interpreter) VisitVarStmt(s *ast.VarStatement) (any, error) {
+func (i *Interpreter) VisitVarStmt(s *ast.VarStmt) (any, error) {
 	var value any = nil
 	var err error
 
