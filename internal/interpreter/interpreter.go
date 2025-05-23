@@ -70,6 +70,21 @@ func (i *Interpreter) VisitBlockStmt(s *ast.BlockStmt) (any, error) {
 	return nil, nil
 }
 
+func (i *Interpreter) VisitIfStmt(s *ast.IfStmt) (any, error) {
+	val, err := s.Condition.Accept(i)
+	if err != nil {
+		return nil, err
+	}
+
+	if i.isTruthy(val) {
+		return s.ThenBranch.Accept(i)
+	} else if s.ElseBranch != nil {
+		return s.ElseBranch.Accept(i)
+	}
+
+	return nil, nil
+}
+
 func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {
 	return i.environment.get(e.Name)
 }

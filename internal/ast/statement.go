@@ -38,3 +38,13 @@ type BlockStmt struct {
 func (s *BlockStmt) Accept(v StmtVisitor) (any, error) {
 	return v.VisitBlockStmt(s)
 }
+
+type IfStmt struct {
+	Condition  Expr
+	ThenBranch Stmt
+	ElseBranch Stmt
+}
+
+func (s *IfStmt) Accept(v StmtVisitor) (any, error) {
+	return v.VisitIfStmt(s)
+}

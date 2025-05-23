@@ -20,6 +20,7 @@ type StmtVisitor interface {
 	VisitExpressionStmt(*ExpressionStmt) (any, error)
 	VisitVarStmt(*VarStmt) (any, error)
 	VisitBlockStmt(*BlockStmt) (any, error)
+	VisitIfStmt(*IfStmt) (any, error)
 }
 
 type AstPrinter struct {
@@ -38,6 +39,10 @@ func (p *AstPrinter) VisitVarStmt(s *VarStmt) (any, error) {
 }
 
 func (p *AstPrinter) VisitBlockStmt(s *BlockStmt) (any, error) {
+	return nil, nil
+}
+
+func (p *AstPrinter) VisitIfStmt(s *BlockStmt) (any, error) {
 	return nil, nil
 }
 
