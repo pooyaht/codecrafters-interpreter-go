@@ -35,19 +35,6 @@ func (i *Interpreter) VisitPrintStmt(s *ast.PrintStmt) (any, error) {
 	return nil, nil
 }
 
-func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {
-	return i.environment.get(e.Name)
-}
-
-func (i *Interpreter) VisitAssignmentExpr(e *ast.AssignmentExpr) (any, error) {
-	value, err := e.Value.Accept(i)
-	if err != nil {
-		return nil, err
-	}
-	i.environment.assign(e.Name, value)
-	return value, nil
-}
-
 func (i *Interpreter) VisitVarStmt(s *ast.VarStatement) (any, error) {
 	var value any = nil
 	var err error
@@ -66,6 +53,19 @@ func (i *Interpreter) VisitVarStmt(s *ast.VarStatement) (any, error) {
 func (i *Interpreter) VisitExpressionStmt(s *ast.ExpressionStmt) (any, error) {
 	_, err := s.Expr.Accept(i)
 	return nil, err
+}
+
+func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {
+	return i.environment.get(e.Name)
+}
+
+func (i *Interpreter) VisitAssignmentExpr(e *ast.AssignmentExpr) (any, error) {
+	value, err := e.Value.Accept(i)
+	if err != nil {
+		return nil, err
+	}
+	i.environment.assign(e.Name, value)
+	return value, nil
 }
 
 func (i *Interpreter) VisitLiteralExpr(e *ast.LiteralExpr) (any, error) {
