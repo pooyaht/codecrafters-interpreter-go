@@ -14,7 +14,7 @@ type Interpreter struct {
 
 func NewInterpreter() Interpreter {
 	return Interpreter{
-		environment: NewEnvironment(),
+		environment: NewEnvironment(nil),
 	}
 }
 
@@ -53,6 +53,21 @@ func (i *Interpreter) VisitVarStmt(s *ast.VarStatement) (any, error) {
 func (i *Interpreter) VisitExpressionStmt(s *ast.ExpressionStmt) (any, error) {
 	_, err := s.Expr.Accept(i)
 	return nil, err
+}
+
+func (i *Interpreter) VisitBlockStmt(s *ast.BlockStmt) (any, error) {
+	previousEnv := i.environment
+	defer (func() {
+		i.environment = previousEnv
+	})()
+
+	env := NewEnvironment(&previousEnv)
+	i.environment = env
+	for _, stmt := range s.Statements {
+		stmt.Accept(i)
+	}
+
+	return nil, nil
 }
 
 func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {

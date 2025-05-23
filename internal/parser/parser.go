@@ -74,8 +74,21 @@ func (p *Parser) statement() ast.Stmt {
 	if p.match(token.PRINT) {
 		return p.printStatement()
 	}
+	if p.match(token.LEFT_BRACE) {
+		return &ast.BlockStmt{Statements: p.block()}
+	}
 
 	return p.expressionStatement()
+}
+
+func (p *Parser) block() []ast.Stmt {
+	stmts := make([]ast.Stmt, 0)
+	for !p.isAtEnd() && !p.check(token.RIGHT_BRACE) {
+		stmts = append(stmts, p.decleration())
+	}
+
+	p.consume(token.RIGHT_BRACE, "expect '}' after block")
+	return stmts
 }
 
 func (p *Parser) printStatement() ast.Stmt {

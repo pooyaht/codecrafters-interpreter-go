@@ -1,6 +1,8 @@
-var quz;
-var hello;
-
-quz = hello = 16 + 34 * 92;
-print quz;
-print hello;
+{
+    var hello = 88;
+    {
+        var foo = 88;
+        print foo;
+    }
+    print hello;
+}

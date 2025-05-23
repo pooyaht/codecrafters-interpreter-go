@@ -30,3 +30,11 @@ type VarStatement struct {
 func (s *VarStatement) Accept(v StmtVisitor) (any, error) {
 	return v.VisitVarStmt(s)
 }
+
+type BlockStmt struct {
+	Statements []Stmt
+}
+
+func (s *BlockStmt) Accept(v StmtVisitor) (any, error) {
+	return v.VisitBlockStmt(s)
+}
