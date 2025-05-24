@@ -64,7 +64,10 @@ func (i *Interpreter) VisitBlockStmt(s *ast.BlockStmt) (any, error) {
 	env := NewEnvironment(&previousEnv)
 	i.environment = env
 	for _, stmt := range s.Statements {
-		stmt.Accept(i)
+		_, err := stmt.Accept(i)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return nil, nil
