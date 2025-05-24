@@ -48,3 +48,12 @@ type IfStmt struct {
 func (s *IfStmt) Accept(v StmtVisitor) (any, error) {
 	return v.VisitIfStmt(s)
 }
+
+type WhileStmt struct {
+	Condition Expr
+	Body      Stmt
+}
+
+func (s *WhileStmt) Accept(v StmtVisitor) (any, error) {
+	return v.VisitWhileStmt(s)
+}

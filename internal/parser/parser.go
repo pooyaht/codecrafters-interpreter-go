@@ -74,6 +74,9 @@ func (p *Parser) statement() ast.Stmt {
 	if p.match(token.IF) {
 		return p.ifStatement()
 	}
+	if p.match(token.WHILE) {
+		return p.whileStatement()
+	}
 	if p.match(token.PRINT) {
 		return p.printStatement()
 	}
@@ -82,6 +85,14 @@ func (p *Parser) statement() ast.Stmt {
 	}
 
 	return p.expressionStatement()
+}
+
+func (p *Parser) whileStatement() ast.Stmt {
+	p.consume(token.LEFT_PAREN, "expect '(' after 'while'")
+	condition := p.expression()
+	p.consume(token.RIGHT_PAREN, "expect ')' after 'while' condition")
+	body := p.statement()
+	return &ast.WhileStmt{Body: body, Condition: condition}
 }
 
 func (p *Parser) ifStatement() ast.Stmt {

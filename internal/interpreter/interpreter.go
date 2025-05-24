@@ -88,6 +88,23 @@ func (i *Interpreter) VisitIfStmt(s *ast.IfStmt) (any, error) {
 	return nil, nil
 }
 
+func (i *Interpreter) VisitWhileStmt(s *ast.WhileStmt) (any, error) {
+	for {
+		condition, err := s.Condition.Accept(i)
+		if err != nil {
+			return nil, err
+		}
+		if !i.isTruthy(condition) {
+			break
+		}
+
+		if _, err := s.Body.Accept(i); err != nil {
+			return nil, err
+		}
+	}
+	return nil, nil
+}
+
 func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {
 	return i.environment.get(e.Name)
 }
