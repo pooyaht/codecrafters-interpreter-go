@@ -129,7 +129,7 @@ func (p *Parser) expression() ast.Expr {
 }
 
 func (p *Parser) assignment() ast.Expr {
-	expr := p.equality()
+	expr := p.or()
 
 	if p.match(token.EQUAL) {
 		equals := p.previous()
@@ -143,6 +143,38 @@ func (p *Parser) assignment() ast.Expr {
 		}
 
 		p.error(equals, "invalid assignment target")
+	}
+
+	return expr
+}
+
+func (p *Parser) or() ast.Expr {
+	expr := p.and()
+
+	for p.match(token.OR) {
+		operator := p.previous()
+		right := p.and()
+		expr = &ast.LogicalExpr{
+			Operator: operator,
+			Right:    right,
+			Left:     expr,
+		}
+	}
+
+	return expr
+}
+
+func (p *Parser) and() ast.Expr {
+	expr := p.equality()
+
+	for p.match(token.AND) {
+		operator := p.previous()
+		right := p.equality()
+		expr = &ast.LogicalExpr{
+			Operator: operator,
+			Right:    right,
+			Left:     expr,
+		}
 	}
 
 	return expr

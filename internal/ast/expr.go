@@ -58,3 +58,13 @@ type AssignmentExpr struct {
 func (e *AssignmentExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitAssignmentExpr(e)
 }
+
+type LogicalExpr struct {
+	Left     Expr
+	Operator token.Token
+	Right    Expr
+}
+
+func (e *LogicalExpr) Accept(v ExprVisitor) (any, error) {
+	return v.VisitLogicalExpr(e)
+}

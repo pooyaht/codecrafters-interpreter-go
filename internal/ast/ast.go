@@ -13,6 +13,7 @@ type ExprVisitor interface {
 	VisitBinaryExpr(*BinaryExpr) (any, error)
 	VisitVariableExpr(*VariableExpr) (any, error)
 	VisitAssignmentExpr(*AssignmentExpr) (any, error)
+	VisitLogicalExpr(*LogicalExpr) (any, error)
 }
 
 type StmtVisitor interface {
@@ -81,4 +82,10 @@ func (p *AstPrinter) VisitVariableExpr(e *VariableExpr) (any, error) {
 func (p *AstPrinter) VisitAssignmentExpr(e *AssignmentExpr) (any, error) {
 	valueStr, _ := e.Value.Accept(p)
 	return fmt.Sprintf("(= %v %v)", e.Name.Lexeme, valueStr), nil
+}
+
+func (p *AstPrinter) VisitLogicalExpr(e *LogicalExpr) (any, error) {
+	leftStr, _ := e.Left.Accept(p)
+	rightStr, _ := e.Right.Accept(p)
+	return fmt.Sprintf("(%v %v %v)", e.Operator.Lexeme, leftStr, rightStr), nil
 }

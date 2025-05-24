@@ -182,6 +182,25 @@ func (i *Interpreter) VisitBinaryExpr(e *ast.BinaryExpr) (any, error) {
 	}
 }
 
+func (i *Interpreter) VisitLogicalExpr(e *ast.LogicalExpr) (any, error) {
+	left, err := e.Left.Accept(i)
+	if err != nil {
+		return nil, err
+	}
+
+	if e.Operator.Type == token.OR {
+		if i.isTruthy(left) {
+			return left, nil
+		}
+	} else {
+		if !i.isTruthy(left) {
+			return left, nil
+		}
+	}
+
+	return e.Right.Accept(i)
+}
+
 func (i *Interpreter) isTruthy(v any) bool {
 	if v == nil {
 		return false
