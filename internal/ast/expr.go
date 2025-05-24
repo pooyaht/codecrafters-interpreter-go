@@ -55,6 +55,6 @@ type AssignmentExpr struct {
 	Value Expr
 }
 
-func (s *AssignmentExpr) Accept(v ExprVisitor) (any, error) {
-	return v.VisitAssignmentExpr(s)
+func (e *AssignmentExpr) Accept(v ExprVisitor) (any, error) {
+	return v.VisitAssignmentExpr(e)
 }
