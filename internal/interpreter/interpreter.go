@@ -4,17 +4,22 @@ import (
 	"fmt"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
+	"github.com/codecrafters-io/interpreter-starter-go/internal/callable"
 	cerror "github.com/codecrafters-io/interpreter-starter-go/internal/error"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
 
 type Interpreter struct {
 	environment Environment
+	globals     Environment
 }
 
 func NewInterpreter() Interpreter {
+	globals := NewEnvironment(nil)
+	globals.define("clock", &callable.ClockFunction{})
 	return Interpreter{
-		environment: NewEnvironment(nil),
+		environment: globals,
+		globals:     globals,
 	}
 }
 
@@ -219,6 +224,35 @@ func (i *Interpreter) VisitLogicalExpr(e *ast.LogicalExpr) (any, error) {
 	}
 
 	return e.Right.Accept(i)
+}
+
+func (i *Interpreter) VisitCallExpr(e *ast.CallExpr) (any, error) {
+	callee, err := e.Callee.Accept(i)
+	if err != nil {
+		return nil, err
+	}
+
+	var args []any
+	for _, arg := range e.Arguments {
+		arg, err := arg.Accept(i)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, arg)
+	}
+
+	callable, ok := callee.(callable.LoxCallable)
+	if !ok {
+		return nil, fmt.Errorf("callee is not callable: %v", callee)
+	}
+	if callable.Arity() != len(args) {
+		return nil, cerror.RuntimeError{
+			Message: fmt.Sprintf("expected %d arguments but got %d", callable.Arity(), len(args)),
+			Line:    e.Paren.Line,
+		}
+	}
+
+	return callable.Call(i, args)
 }
 
 func (i *Interpreter) isTruthy(v any) bool {

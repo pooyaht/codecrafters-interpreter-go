@@ -2,7 +2,9 @@ package ast
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/codecrafters-io/interpreter-starter-go/internal/callable"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/util"
 )
 
@@ -14,6 +16,7 @@ type ExprVisitor interface {
 	VisitVariableExpr(*VariableExpr) (any, error)
 	VisitAssignmentExpr(*AssignmentExpr) (any, error)
 	VisitLogicalExpr(*LogicalExpr) (any, error)
+	VisitCallExpr(*CallExpr) (any, error)
 }
 
 type StmtVisitor interface {
@@ -93,4 +96,22 @@ func (p *AstPrinter) VisitLogicalExpr(e *LogicalExpr) (any, error) {
 	leftStr, _ := e.Left.Accept(p)
 	rightStr, _ := e.Right.Accept(p)
 	return fmt.Sprintf("(%v %v %v)", e.Operator.Lexeme, leftStr, rightStr), nil
+}
+
+func (p *AstPrinter) VisitCallExpr(e *CallExpr) (any, error) {
+	callee, err := e.Callee.Accept(p)
+	if err != nil {
+		return nil, err
+	}
+
+	var args []string
+	for _, arg := range e.Arguments {
+		argStr, err := arg.Accept(p)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, argStr.(string))
+	}
+
+	return fmt.Sprintf("%s(%s)", callee.(callable.LoxCallable).String(), strings.Join(args, ", ")), nil
 }

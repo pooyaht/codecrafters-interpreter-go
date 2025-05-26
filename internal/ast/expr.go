@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/codecrafters-io/interpreter-starter-go/internal/token"
+import (
+	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
+)
 
 type Expr interface {
 	Accept(ExprVisitor) (any, error)
@@ -67,4 +69,14 @@ type LogicalExpr struct {
 
 func (e *LogicalExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitLogicalExpr(e)
+}
+
+type CallExpr struct {
+	Callee    Expr
+	Paren     token.Token
+	Arguments []Expr
+}
+
+func (e *CallExpr) Accept(v ExprVisitor) (any, error) {
+	return v.VisitCallExpr(e)
 }

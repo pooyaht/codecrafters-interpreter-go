@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"slices"
+
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
@@ -283,7 +285,37 @@ func (p *Parser) unary() ast.Expr {
 		right := p.unary()
 		return &ast.UnaryExpr{Operator: operator, Right: right}
 	}
-	return p.primary()
+	return p.call()
+}
+
+func (p *Parser) call() ast.Expr {
+	expr := p.primary()
+
+	for {
+		if p.match(token.LEFT_PAREN) {
+			expr = p.finishCall(expr)
+		} else {
+			break
+		}
+	}
+
+	return expr
+}
+
+func (p *Parser) finishCall(callee ast.Expr) ast.Expr {
+	arguments := make([]ast.Expr, 0)
+	if !p.check(token.RIGHT_PAREN) {
+		for p.match(token.COMMA) {
+			if len(arguments) >= 255 {
+				p.error(p.peek(), "can't have more than 255 arguments")
+				return nil
+			}
+			arguments = append(arguments, p.expression())
+		}
+	}
+
+	parenToken := p.consume(token.RIGHT_PAREN, "expect ')' after arguments")
+	return &ast.CallExpr{Callee: callee, Arguments: arguments, Paren: *parenToken}
 }
 
 func (p *Parser) primary() ast.Expr {
@@ -312,11 +344,9 @@ func (p *Parser) primary() ast.Expr {
 }
 
 func (p *Parser) match(types ...token.TokenType) bool {
-	for _, t := range types {
-		if p.check(t) {
-			p.advance()
-			return true
-		}
+	if slices.ContainsFunc(types, p.check) {
+		p.advance()
+		return true
 	}
 	return false
 }
