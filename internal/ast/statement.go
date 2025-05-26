@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/codecrafters-io/interpreter-starter-go/internal/token"
+import (
+	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
+)
 
 type Stmt interface {
 	Accept(StmtVisitor) (any, error)
@@ -56,4 +58,14 @@ type WhileStmt struct {
 
 func (s *WhileStmt) Accept(v StmtVisitor) (any, error) {
 	return v.VisitWhileStmt(s)
+}
+
+type FunctionStmt struct {
+	Name       token.Token
+	Parameters []token.Token
+	Body       []Stmt
+}
+
+func (s *FunctionStmt) Accept(v StmtVisitor) (any, error) {
+	return v.VisitFunctionStmt(s)
 }

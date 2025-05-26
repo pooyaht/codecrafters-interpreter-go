@@ -11,7 +11,7 @@ type Environment struct {
 	enclosing *Environment
 }
 
-func NewEnvironment(enclosing *Environment) Environment {
+func newEnvironment(enclosing *Environment) Environment {
 	return Environment{
 		enclosing: enclosing,
 		values:    make(map[string]any),

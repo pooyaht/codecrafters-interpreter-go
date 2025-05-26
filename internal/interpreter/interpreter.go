@@ -14,7 +14,7 @@ type Interpreter struct {
 }
 
 func NewInterpreter() Interpreter {
-	globals := NewEnvironment(nil)
+	globals := newEnvironment(nil)
 	globals.define("clock", &ClockFunction{})
 	return Interpreter{
 		environment: globals,
@@ -60,21 +60,8 @@ func (i *Interpreter) VisitExpressionStmt(s *ast.ExpressionStmt) (any, error) {
 }
 
 func (i *Interpreter) VisitBlockStmt(s *ast.BlockStmt) (any, error) {
-	previousEnv := i.environment
-	defer (func() {
-		i.environment = previousEnv
-	})()
-
-	env := NewEnvironment(&previousEnv)
-	i.environment = env
-	for _, stmt := range s.Statements {
-		_, err := stmt.Accept(i)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return nil, nil
+	blockEnv := newEnvironment(&i.environment)
+	return nil, i.executeBlock(s.Statements, &blockEnv)
 }
 
 func (i *Interpreter) VisitIfStmt(s *ast.IfStmt) (any, error) {
@@ -106,6 +93,12 @@ func (i *Interpreter) VisitWhileStmt(s *ast.WhileStmt) (any, error) {
 			return nil, err
 		}
 	}
+	return nil, nil
+}
+
+func (i *Interpreter) VisitFunctionStmt(s *ast.FunctionStmt) (any, error) {
+	function := newLoxFunction(*s)
+	i.environment.define(s.Name.Lexeme, function)
 	return nil, nil
 }
 
@@ -242,7 +235,7 @@ func (i *Interpreter) VisitCallExpr(e *ast.CallExpr) (any, error) {
 
 	callable, ok := callee.(ast.LoxCallable)
 	if !ok {
-		return nil, fmt.Errorf("callee is not callable: %v", callee)
+		return nil, fmt.Errorf("function is not callable: %v", callee)
 	}
 	if callable.Arity() != len(args) {
 		return nil, cerror.RuntimeError{
@@ -277,6 +270,25 @@ func (i *Interpreter) checkNumberOperands(operator token.Token, left, right any)
 
 	if !leftOk || !rightOk {
 		return cerror.RuntimeError{Message: "Operands must be numbers.", Line: operator.Line}
+	}
+
+	return nil
+}
+
+func (i *Interpreter) executeBlock(statements []ast.Stmt, environment *Environment) error {
+	previous := i.environment
+
+	defer func() {
+		i.environment = previous
+	}()
+
+	i.environment = *environment
+
+	for _, stmt := range statements {
+		_, err := stmt.Accept(i)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

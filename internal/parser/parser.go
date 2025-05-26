@@ -57,8 +57,40 @@ func (p *Parser) decleration() ast.Stmt {
 	if p.match(token.VAR) {
 		return p.varDecleration()
 	}
+	if p.match(token.FUN) {
+		return p.function("function")
+	}
 
 	return p.statement()
+}
+
+func (p *Parser) function(kind string) ast.Stmt {
+	name := p.consume(token.IDENTIFIER, fmt.Sprintf("expect %s name", kind))
+	p.consume(token.LEFT_PAREN, fmt.Sprintf("expect '(' after %s name", kind))
+	parameters := make([]token.Token, 0)
+	if !p.check(token.RIGHT_PAREN) {
+		for {
+			if len(parameters) >= 255 {
+				p.error(p.peek(), "can't have more than 255 parameters")
+				return nil
+			}
+			tkn := p.consume(token.IDENTIFIER, "expect parameter name")
+			if tkn != nil {
+				parameters = append(parameters, *tkn)
+			}
+
+			if !p.match(token.COMMA) {
+				break
+			}
+		}
+	}
+
+	p.consume(token.RIGHT_PAREN, "expect ')' after arguments")
+	p.consume(token.LEFT_BRACE, fmt.Sprintf("expect '{' before %s body", kind))
+	body := p.block()
+	return &ast.FunctionStmt{
+		Name: *name, Parameters: parameters, Body: body,
+	}
 }
 
 func (p *Parser) varDecleration() ast.Stmt {
@@ -305,12 +337,16 @@ func (p *Parser) call() ast.Expr {
 func (p *Parser) finishCall(callee ast.Expr) ast.Expr {
 	arguments := make([]ast.Expr, 0)
 	if !p.check(token.RIGHT_PAREN) {
-		for p.match(token.COMMA) {
+		for {
 			if len(arguments) >= 255 {
 				p.error(p.peek(), "can't have more than 255 arguments")
 				return nil
 			}
 			arguments = append(arguments, p.expression())
+
+			if !p.match(token.COMMA) {
+				break
+			}
 		}
 	}
 

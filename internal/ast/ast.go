@@ -25,12 +25,11 @@ type StmtVisitor interface {
 	VisitBlockStmt(*BlockStmt) (any, error)
 	VisitIfStmt(*IfStmt) (any, error)
 	VisitWhileStmt(*WhileStmt) (any, error)
+	VisitFunctionStmt(*FunctionStmt) (any, error)
 }
 
-type interpreterInterface any
-
 type LoxCallable interface {
-	Call(interpreter interpreterInterface, arguments []any) (any, error)
+	Call(interpreter any, arguments []any) (any, error)
 	Arity() int
 	String() string
 }
@@ -59,6 +58,10 @@ func (p *AstPrinter) VisitIfStmt(s *BlockStmt) (any, error) {
 }
 
 func (p *AstPrinter) VisitWhileStmt(s *WhileStmt) (any, error) {
+	return nil, nil
+}
+
+func (p *AstPrinter) VisitFunctionStmt(s *FunctionStmt) (any, error) {
 	return nil, nil
 }
 
