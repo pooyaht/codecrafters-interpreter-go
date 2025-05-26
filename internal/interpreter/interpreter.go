@@ -60,8 +60,7 @@ func (i *Interpreter) VisitExpressionStmt(s *ast.ExpressionStmt) (any, error) {
 }
 
 func (i *Interpreter) VisitBlockStmt(s *ast.BlockStmt) (any, error) {
-	blockEnv := newEnvironment(&i.environment)
-	return nil, i.executeBlock(s.Statements, &blockEnv)
+	return nil, i.executeBlock(s.Statements, i.environment)
 }
 
 func (i *Interpreter) VisitIfStmt(s *ast.IfStmt) (any, error) {
@@ -275,14 +274,14 @@ func (i *Interpreter) checkNumberOperands(operator token.Token, left, right any)
 	return nil
 }
 
-func (i *Interpreter) executeBlock(statements []ast.Stmt, environment *Environment) error {
-	previous := i.environment
+func (i *Interpreter) executeBlock(statements []ast.Stmt, environment Environment) error {
+	previousEnv := i.environment
 
 	defer func() {
-		i.environment = previous
+		i.environment = previousEnv
 	}()
 
-	i.environment = *environment
+	i.environment = newEnvironment(&environment)
 
 	for _, stmt := range statements {
 		_, err := stmt.Accept(i)

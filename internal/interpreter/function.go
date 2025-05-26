@@ -23,7 +23,7 @@ func (lf *LoxFunction) Call(interpreterIface any, arguments []any) (any, error) 
 		environment.define(param.Lexeme, arguments[i])
 	}
 
-	return nil, interpreter.executeBlock(lf.decleration.Body, &environment)
+	return nil, interpreter.executeBlock(lf.decleration.Body, environment)
 }
 
 func (lf *LoxFunction) Arity() int {
