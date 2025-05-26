@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
-	"github.com/codecrafters-io/interpreter-starter-go/internal/callable"
 	cerror "github.com/codecrafters-io/interpreter-starter-go/internal/error"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
@@ -16,7 +15,7 @@ type Interpreter struct {
 
 func NewInterpreter() Interpreter {
 	globals := NewEnvironment(nil)
-	globals.define("clock", &callable.ClockFunction{})
+	globals.define("clock", &ClockFunction{})
 	return Interpreter{
 		environment: globals,
 		globals:     globals,
@@ -241,7 +240,7 @@ func (i *Interpreter) VisitCallExpr(e *ast.CallExpr) (any, error) {
 		args = append(args, arg)
 	}
 
-	callable, ok := callee.(callable.LoxCallable)
+	callable, ok := callee.(ast.LoxCallable)
 	if !ok {
 		return nil, fmt.Errorf("callee is not callable: %v", callee)
 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/codecrafters-io/interpreter-starter-go/internal/callable"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/util"
 )
 
@@ -26,6 +25,14 @@ type StmtVisitor interface {
 	VisitBlockStmt(*BlockStmt) (any, error)
 	VisitIfStmt(*IfStmt) (any, error)
 	VisitWhileStmt(*WhileStmt) (any, error)
+}
+
+type interpreterInterface any
+
+type LoxCallable interface {
+	Call(interpreter interpreterInterface, arguments []any) (any, error)
+	Arity() int
+	String() string
 }
 
 type AstPrinter struct {
@@ -113,5 +120,5 @@ func (p *AstPrinter) VisitCallExpr(e *CallExpr) (any, error) {
 		args = append(args, argStr.(string))
 	}
 
-	return fmt.Sprintf("%s(%s)", callee.(callable.LoxCallable).String(), strings.Join(args, ", ")), nil
+	return fmt.Sprintf("%s(%s)", callee.(LoxCallable).String(), strings.Join(args, ", ")), nil
 }
