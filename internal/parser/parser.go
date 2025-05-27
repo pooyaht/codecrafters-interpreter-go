@@ -10,6 +10,15 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
 
+type ParseError struct {
+	Token   token.Token
+	Message string
+}
+
+func (e ParseError) Error() string {
+	return fmt.Sprintf("[line %d] Error at '%s': %s", e.Token.Line, e.Token.Lexeme, e.Message)
+}
+
 type Parser struct {
 	tokens   []token.Token
 	current  int
@@ -27,60 +36,75 @@ func NewParser(tokens []token.Token) *Parser {
 func (p *Parser) Parse() []ast.Stmt {
 	var statements []ast.Stmt
 	for !p.isAtEnd() {
-		stmt := p.decleration()
-		if p.HadError {
-			return nil
-		}
-		if stmt != nil {
-			statements = append(statements, stmt)
-		}
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					if _, ok := r.(ParseError); ok {
+						p.HadError = true
+						p.synchronize()
+					} else {
+						panic(r)
+					}
+				}
+			}()
+
+			stmt := p.declaration()
+			if stmt != nil {
+				statements = append(statements, stmt)
+			}
+		}()
 	}
 	return statements
 }
 
-// for tests backward compatibility
+// ParseExpressions for backward compatibility
 func (p *Parser) ParseExpressions() []ast.Expr {
 	var expressions []ast.Expr
 	for !p.isAtEnd() {
-		expr := p.expression()
-		if p.HadError {
-			return nil
-		}
-		if expr != nil {
-			expressions = append(expressions, expr)
-		}
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					if _, ok := r.(ParseError); ok {
+						p.HadError = true
+						p.synchronize()
+					} else {
+						panic(r)
+					}
+				}
+			}()
+
+			expr := p.expression()
+			if expr != nil {
+				expressions = append(expressions, expr)
+			}
+		}()
 	}
 	return expressions
 }
 
-func (p *Parser) decleration() ast.Stmt {
+func (p *Parser) declaration() ast.Stmt {
 	if p.match(token.VAR) {
-		return p.varDecleration()
+		return p.varDeclaration()
 	}
 	if p.match(token.FUN) {
 		return p.function("function")
 	}
-
 	return p.statement()
 }
 
 func (p *Parser) function(kind string) ast.Stmt {
 	name := p.consume(token.IDENTIFIER, fmt.Sprintf("expect %s name", kind))
 	p.consume(token.LEFT_PAREN, fmt.Sprintf("expect '(' after %s name", kind))
+
 	parameters := make([]token.Token, 0)
 	if !p.check(token.RIGHT_PAREN) {
 		for {
 			if len(parameters) >= 255 {
 				p.error(p.peek(), "can't have more than 255 parameters")
-				return nil
 			}
-			tkn := p.consume(token.IDENTIFIER, "expect parameter name")
-			if tkn != nil {
-				parameters = append(parameters, *tkn)
-			}
-			if p.HadError {
-				return nil
-			}
+
+			param := p.consume(token.IDENTIFIER, "expect parameter name")
+			parameters = append(parameters, *param)
 
 			if !p.match(token.COMMA) {
 				break
@@ -88,18 +112,18 @@ func (p *Parser) function(kind string) ast.Stmt {
 		}
 	}
 
-	p.consume(token.RIGHT_PAREN, "expect ')' after arguments")
+	p.consume(token.RIGHT_PAREN, "expect ')' after parameters")
 	p.consume(token.LEFT_BRACE, fmt.Sprintf("expect '{' before %s body", kind))
-	if p.HadError {
-		return nil
-	}
 	body := p.block()
+
 	return &ast.FunctionStmt{
-		Name: *name, Parameters: parameters, Body: body,
+		Name:       *name,
+		Parameters: parameters,
+		Body:       body,
 	}
 }
 
-func (p *Parser) varDecleration() ast.Stmt {
+func (p *Parser) varDeclaration() ast.Stmt {
 	name := p.consume(token.IDENTIFIER, "expect variable name")
 	var initializer ast.Expr = nil
 	if p.match(token.EQUAL) {
@@ -137,7 +161,7 @@ func (p *Parser) forStatement() ast.Stmt {
 	if p.match(token.SEMICOLON) {
 		initializer = nil
 	} else if p.match(token.VAR) {
-		initializer = p.varDecleration()
+		initializer = p.varDeclaration()
 	} else {
 		initializer = p.expressionStatement()
 	}
@@ -176,7 +200,7 @@ func (p *Parser) forStatement() ast.Stmt {
 func (p *Parser) whileStatement() ast.Stmt {
 	p.consume(token.LEFT_PAREN, "expect '(' after 'while'")
 	condition := p.expression()
-	p.consume(token.RIGHT_PAREN, "expect ')' after 'while' condition")
+	p.consume(token.RIGHT_PAREN, "expect ')' after condition")
 	body := p.statement()
 	return &ast.WhileStmt{Body: body, Condition: condition}
 }
@@ -184,7 +208,7 @@ func (p *Parser) whileStatement() ast.Stmt {
 func (p *Parser) ifStatement() ast.Stmt {
 	p.consume(token.LEFT_PAREN, "expect '(' after 'if'")
 	condition := p.expression()
-	p.consume(token.RIGHT_PAREN, "expect ')' after 'if' condition")
+	p.consume(token.RIGHT_PAREN, "expect ')' after if condition")
 
 	thenBranchStmt := p.statement()
 	var elseBranchStmt ast.Stmt = nil
@@ -202,7 +226,10 @@ func (p *Parser) ifStatement() ast.Stmt {
 func (p *Parser) block() []ast.Stmt {
 	stmts := make([]ast.Stmt, 0)
 	for !p.isAtEnd() && !p.check(token.RIGHT_BRACE) {
-		stmts = append(stmts, p.decleration())
+		stmt := p.declaration()
+		if stmt != nil {
+			stmts = append(stmts, stmt)
+		}
 	}
 
 	p.consume(token.RIGHT_BRACE, "expect '}' after block")
@@ -211,13 +238,13 @@ func (p *Parser) block() []ast.Stmt {
 
 func (p *Parser) printStatement() ast.Stmt {
 	expr := p.expression()
-	p.consume(token.SEMICOLON, "Expect ';' after value.")
+	p.consume(token.SEMICOLON, "expect ';' after value")
 	return &ast.PrintStmt{Expr: expr}
 }
 
 func (p *Parser) expressionStatement() ast.Stmt {
 	expr := p.expression()
-	p.consume(token.SEMICOLON, "Expect ';' after value.")
+	p.consume(token.SEMICOLON, "expect ';' after expression")
 	return &ast.ExpressionStmt{Expr: expr}
 }
 
@@ -346,12 +373,8 @@ func (p *Parser) finishCall(callee ast.Expr) ast.Expr {
 		for {
 			if len(arguments) >= 255 {
 				p.error(p.peek(), "can't have more than 255 arguments")
-				return nil
 			}
 			arguments = append(arguments, p.expression())
-			if p.HadError {
-				return nil
-			}
 
 			if !p.match(token.COMMA) {
 				break
@@ -378,13 +401,14 @@ func (p *Parser) primary() ast.Expr {
 	}
 	if p.match(token.LEFT_PAREN) {
 		expr := p.expression()
-		p.consume(token.RIGHT_PAREN, "Expect ')' after expression")
+		p.consume(token.RIGHT_PAREN, "expect ')' after expression")
 		return &ast.GroupingExpr{Expr: expr}
 	}
 	if p.match(token.IDENTIFIER) {
 		return &ast.VariableExpr{Name: p.previous()}
 	}
-	p.error(p.peek(), "Expect expression")
+
+	p.error(p.peek(), "expect expression")
 	return nil
 }
 
@@ -408,6 +432,7 @@ func (p *Parser) consume(t token.TokenType, message string) *token.Token {
 func (p *Parser) error(token token.Token, message string) {
 	p.HadError = true
 	fmt.Fprintf(os.Stderr, "[line %d] Error at '%s': %s\n", token.Line, token.Lexeme, message)
+	panic(ParseError{Token: token, Message: message})
 }
 
 func (p *Parser) check(t token.TokenType) bool {
@@ -434,4 +459,21 @@ func (p *Parser) peek() token.Token {
 
 func (p *Parser) previous() token.Token {
 	return p.tokens[p.current-1]
+}
+
+func (p *Parser) synchronize() {
+	p.advance()
+
+	for !p.isAtEnd() {
+		if p.previous().Type == token.SEMICOLON {
+			return
+		}
+
+		switch p.peek().Type {
+		case token.CLASS, token.FUN, token.VAR, token.FOR, token.IF, token.WHILE, token.PRINT, token.RETURN:
+			return
+		}
+
+		p.advance()
+	}
 }

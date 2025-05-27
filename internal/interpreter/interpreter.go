@@ -4,9 +4,17 @@ import (
 	"fmt"
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
-	cerror "github.com/codecrafters-io/interpreter-starter-go/internal/error"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
+
+type RuntimeError struct {
+	Message string
+	Line    int
+}
+
+func (e RuntimeError) Error() string {
+	return fmt.Sprintf("%s \n[line %d]\n", e.Message, e.Line)
+}
 
 type Interpreter struct {
 	environment Environment
@@ -237,7 +245,7 @@ func (i *Interpreter) VisitCallExpr(e *ast.CallExpr) (any, error) {
 		return nil, fmt.Errorf("function is not callable: %v", callee)
 	}
 	if callable.Arity() != len(args) {
-		return nil, cerror.RuntimeError{
+		return nil, RuntimeError{
 			Message: fmt.Sprintf("expected %d arguments but got %d", callable.Arity(), len(args)),
 			Line:    e.Paren.Line,
 		}
@@ -258,7 +266,7 @@ func (i *Interpreter) isTruthy(v any) bool {
 
 func (i *Interpreter) checkNumberOperand(operator token.Token, operand any) error {
 	if _, ok := operand.(float64); !ok {
-		return cerror.RuntimeError{Message: "Operand must be a number.", Line: operator.Line}
+		return RuntimeError{Message: "Operand must be a number.", Line: operator.Line}
 	}
 	return nil
 }
@@ -268,7 +276,7 @@ func (i *Interpreter) checkNumberOperands(operator token.Token, left, right any)
 	_, rightOk := right.(float64)
 
 	if !leftOk || !rightOk {
-		return cerror.RuntimeError{Message: "Operands must be numbers.", Line: operator.Line}
+		return RuntimeError{Message: "Operands must be numbers.", Line: operator.Line}
 	}
 
 	return nil
