@@ -16,8 +16,7 @@ func newLoxFunction(decleration ast.FunctionStmt) *LoxFunction {
 	}
 }
 
-func (lf *LoxFunction) Call(interpreterIface any, arguments []any) (any, error) {
-	interpreter := interpreterIface.(*Interpreter)
+func (lf *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, error) {
 	environment := newEnvironment(&interpreter.globals)
 	for i, param := range lf.decleration.Parameters {
 		environment.define(param.Lexeme, arguments[i])

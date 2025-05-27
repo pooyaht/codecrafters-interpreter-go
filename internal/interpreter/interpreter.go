@@ -232,7 +232,7 @@ func (i *Interpreter) VisitCallExpr(e *ast.CallExpr) (any, error) {
 		args = append(args, arg)
 	}
 
-	callable, ok := callee.(ast.LoxCallable)
+	callable, ok := callee.(LoxCallable)
 	if !ok {
 		return nil, fmt.Errorf("function is not callable: %v", callee)
 	}

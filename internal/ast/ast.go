@@ -28,12 +28,6 @@ type StmtVisitor interface {
 	VisitFunctionStmt(*FunctionStmt) (any, error)
 }
 
-type LoxCallable interface {
-	Call(interpreter any, arguments []any) (any, error)
-	Arity() int
-	String() string
-}
-
 type AstPrinter struct {
 }
 
@@ -123,5 +117,5 @@ func (p *AstPrinter) VisitCallExpr(e *CallExpr) (any, error) {
 		args = append(args, argStr.(string))
 	}
 
-	return fmt.Sprintf("%s(%s)", callee.(LoxCallable).String(), strings.Join(args, ", ")), nil
+	return fmt.Sprintf("%s(%s)", callee, strings.Join(args, ", ")), nil
 }
