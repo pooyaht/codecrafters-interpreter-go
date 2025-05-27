@@ -78,6 +78,9 @@ func (p *Parser) function(kind string) ast.Stmt {
 			if tkn != nil {
 				parameters = append(parameters, *tkn)
 			}
+			if p.HadError {
+				return nil
+			}
 
 			if !p.match(token.COMMA) {
 				break
@@ -87,6 +90,9 @@ func (p *Parser) function(kind string) ast.Stmt {
 
 	p.consume(token.RIGHT_PAREN, "expect ')' after arguments")
 	p.consume(token.LEFT_BRACE, fmt.Sprintf("expect '{' before %s body", kind))
+	if p.HadError {
+		return nil
+	}
 	body := p.block()
 	return &ast.FunctionStmt{
 		Name: *name, Parameters: parameters, Body: body,
@@ -343,6 +349,9 @@ func (p *Parser) finishCall(callee ast.Expr) ast.Expr {
 				return nil
 			}
 			arguments = append(arguments, p.expression())
+			if p.HadError {
+				return nil
+			}
 
 			if !p.match(token.COMMA) {
 				break
