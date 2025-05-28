@@ -109,6 +109,18 @@ func (i *Interpreter) VisitFunctionStmt(s *ast.FunctionStmt) (any, error) {
 	return nil, nil
 }
 
+func (i *Interpreter) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
+	var value any = nil
+	if stmt.Value != nil {
+		var err error
+		value, err = stmt.Value.Accept(i)
+		if err != nil {
+			return nil, err
+		}
+	}
+	panic(LoxFunctionReturnValue{Value: value})
+}
+
 func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {
 	return i.environment.get(e.Name)
 }

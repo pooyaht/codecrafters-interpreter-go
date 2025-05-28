@@ -16,7 +16,22 @@ func newLoxFunction(decleration ast.FunctionStmt) *LoxFunction {
 	}
 }
 
-func (lf *LoxFunction) Call(interpreter *Interpreter, arguments []any) (any, error) {
+type LoxFunctionReturnValue struct {
+	Value any
+}
+
+func (lf *LoxFunction) Call(interpreter *Interpreter, arguments []any) (result any, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			if returnVal, ok := r.(LoxFunctionReturnValue); ok {
+				result = returnVal.Value
+				err = nil
+				return
+			}
+			panic(r)
+		}
+	}()
+
 	environment := newEnvironment(&interpreter.globals)
 	for i, param := range lf.decleration.Parameters {
 		environment.define(param.Lexeme, arguments[i])

@@ -26,6 +26,7 @@ type StmtVisitor interface {
 	VisitIfStmt(*IfStmt) (any, error)
 	VisitWhileStmt(*WhileStmt) (any, error)
 	VisitFunctionStmt(*FunctionStmt) (any, error)
+	VisitReturnStmt(*ReturnStmt) (any, error)
 }
 
 type AstPrinter struct {
