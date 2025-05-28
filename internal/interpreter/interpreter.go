@@ -106,7 +106,7 @@ func (i *Interpreter) VisitWhileStmt(s *ast.WhileStmt) (any, error) {
 }
 
 func (i *Interpreter) VisitFunctionStmt(s *ast.FunctionStmt) (any, error) {
-	function := newLoxFunction(*s)
+	function := newLoxFunction(*s, i.environment)
 	i.environment.define(s.Name.Lexeme, function)
 	return nil, nil
 }

@@ -8,11 +8,13 @@ import (
 
 type LoxFunction struct {
 	declaration ast.FunctionStmt
+	closure     Environment
 }
 
-func newLoxFunction(declaration ast.FunctionStmt) *LoxFunction {
+func newLoxFunction(declaration ast.FunctionStmt, closure Environment) *LoxFunction {
 	return &LoxFunction{
-		declaration,
+		declaration: declaration,
+		closure:     closure,
 	}
 }
 
@@ -36,7 +38,8 @@ func (lf *LoxFunction) Call(interpreter *Interpreter, arguments []any) (result a
 		}
 	}()
 
-	environment := newEnvironment(&interpreter.globals)
+	environment := newEnvironment(&lf.closure)
+
 	for i, param := range lf.declaration.Parameters {
 		environment.define(param.Lexeme, arguments[i])
 	}
