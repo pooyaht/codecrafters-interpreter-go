@@ -7,12 +7,12 @@ import (
 )
 
 type LoxFunction struct {
-	decleration ast.FunctionStmt
+	declaration ast.FunctionStmt
 }
 
-func newLoxFunction(decleration ast.FunctionStmt) *LoxFunction {
+func newLoxFunction(declaration ast.FunctionStmt) *LoxFunction {
 	return &LoxFunction{
-		decleration,
+		declaration,
 	}
 }
 
@@ -37,17 +37,17 @@ func (lf *LoxFunction) Call(interpreter *Interpreter, arguments []any) (result a
 	}()
 
 	environment := newEnvironment(&interpreter.globals)
-	for i, param := range lf.decleration.Parameters {
+	for i, param := range lf.declaration.Parameters {
 		environment.define(param.Lexeme, arguments[i])
 	}
 
-	return nil, interpreter.executeBlock(lf.decleration.Body, environment)
+	return nil, interpreter.executeBlock(lf.declaration.Body, environment)
 }
 
 func (lf *LoxFunction) Arity() int {
-	return len(lf.decleration.Parameters)
+	return len(lf.declaration.Parameters)
 }
 
 func (lf *LoxFunction) String() string {
-	return fmt.Sprintf("<fn %s>", lf.decleration.Name.Lexeme)
+	return fmt.Sprintf("<fn %s>", lf.declaration.Name.Lexeme)
 }
