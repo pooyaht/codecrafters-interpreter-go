@@ -22,7 +22,7 @@ type LoxFunctionReturnValue struct {
 	Value any
 }
 
-func (lf *LoxFunction) Call(interpreter *Interpreter, arguments []any) (result any, err error) {
+func (lf *LoxFunction) Call(interpreter Interpreter, arguments []any) (result any, err error) {
 	previousIsInsideFunction := interpreter.isInsideFunction
 	interpreter.isInsideFunction = true
 

@@ -272,7 +272,7 @@ func (i *Interpreter) VisitCallExpr(e *ast.CallExpr) (any, error) {
 		}
 	}
 
-	return callable.Call(i, args)
+	return callable.Call(*i, args)
 }
 
 func (i *Interpreter) isTruthy(v any) bool {

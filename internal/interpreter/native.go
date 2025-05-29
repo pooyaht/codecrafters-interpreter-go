@@ -6,7 +6,7 @@ import (
 
 type ClockFunction struct{}
 
-func (c *ClockFunction) Call(interpreter *Interpreter, arguments []any) (any, error) {
+func (c *ClockFunction) Call(interpreter Interpreter, arguments []any) (any, error) {
 	return float64(time.Now().UnixNano()) / 1e9, nil
 }
 
