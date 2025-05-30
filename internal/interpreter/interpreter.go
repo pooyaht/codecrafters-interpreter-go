@@ -5,6 +5,7 @@ import (
 
 	"github.com/codecrafters-io/interpreter-starter-go/internal/ast"
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
+	"github.com/codecrafters-io/interpreter-starter-go/internal/util"
 )
 
 type RuntimeError struct {
@@ -45,6 +46,8 @@ func (i *Interpreter) VisitPrintStmt(s *ast.PrintStmt) (any, error) {
 	}
 	if value == nil {
 		fmt.Println("nil")
+	} else if num, ok := value.(float64); ok {
+		fmt.Println(util.FormatFloat(num, "run"))
 	} else {
 		fmt.Println(value)
 	}

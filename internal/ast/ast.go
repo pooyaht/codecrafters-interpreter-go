@@ -66,7 +66,7 @@ func (p *AstPrinter) VisitLiteralExpr(e *LiteralExpr) (any, error) {
 	}
 
 	if num, ok := e.Value.(float64); ok {
-		return util.FormatFloat(num), nil
+		return util.FormatFloat(num, "parse"), nil
 	}
 
 	return fmt.Sprintf("%v", e.Value), nil

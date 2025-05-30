@@ -59,7 +59,7 @@ func (t Token) String() string {
 	case STRING:
 		return fmt.Sprintf("STRING %s %s", t.Lexeme, t.Literal)
 	case NUMBER:
-		return fmt.Sprintf("NUMBER %s %s", t.Lexeme, util.FormatFloat(t.Literal.(float64)))
+		return fmt.Sprintf("NUMBER %s %s", t.Lexeme, util.FormatFloat(t.Literal.(float64), "parse"))
 	case IDENTIFIER:
 		return fmt.Sprintf("IDENTIFIER %s null", t.Lexeme)
 	default:
