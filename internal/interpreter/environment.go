@@ -27,7 +27,7 @@ func (e *Environment) get(name token.Token) (any, error) {
 		return e.enclosing.get(name)
 	}
 
-	return nil, fmt.Errorf("undefined varialbe %s", name.Lexeme)
+	return nil, fmt.Errorf("undefined variable %s", name.Lexeme)
 }
 
 func (e *Environment) assign(name token.Token, value any) (any, error) {
@@ -40,7 +40,7 @@ func (e *Environment) assign(name token.Token, value any) (any, error) {
 		return e.enclosing.assign(name, value)
 	}
 
-	return nil, fmt.Errorf("undefined varialbe %s", name.Lexeme)
+	return nil, fmt.Errorf("undefined variable %s", name.Lexeme)
 }
 
 func (e *Environment) define(name string, value any) {
