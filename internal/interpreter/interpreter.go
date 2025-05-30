@@ -19,6 +19,7 @@ func (e RuntimeError) Error() string {
 type Interpreter struct {
 	environment      Environment
 	globals          Environment
+	locals           map[ast.Expr]int
 	isInsideFunction bool
 }
 
@@ -28,6 +29,7 @@ func NewInterpreter() Interpreter {
 	return Interpreter{
 		environment:      globals,
 		globals:          globals,
+		locals:           make(map[ast.Expr]int, 0),
 		isInsideFunction: false,
 	}
 }
@@ -131,7 +133,7 @@ func (i *Interpreter) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
 }
 
 func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {
-	return i.environment.get(e.Name)
+	return i.lookupVariable(e.Name, e)
 }
 
 func (i *Interpreter) VisitAssignmentExpr(e *ast.AssignmentExpr) (any, error) {
@@ -139,8 +141,13 @@ func (i *Interpreter) VisitAssignmentExpr(e *ast.AssignmentExpr) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	i.environment.assign(e.Name, value)
-	return value, nil
+
+	distance, ok := i.locals[e]
+	if ok {
+		return value, i.environment.assignAt(distance, e.Name, value)
+	} else {
+		return i.globals.assign(e.Name, value)
+	}
 }
 
 func (i *Interpreter) VisitLiteralExpr(e *ast.LiteralExpr) (any, error) {
@@ -320,4 +327,16 @@ func (i *Interpreter) executeBlock(statements []ast.Stmt, environment Environmen
 	}
 
 	return nil
+}
+
+func (i *Interpreter) lookupVariable(name token.Token, expr ast.Expr) (any, error) {
+	if distance, ok := i.locals[expr]; ok {
+		return i.environment.getAt(distance, name.Lexeme)
+	} else {
+		return i.globals.get(name)
+	}
+}
+
+func (i *Interpreter) resolve(expr ast.Expr, depth int) {
+	i.locals[expr] = depth
 }

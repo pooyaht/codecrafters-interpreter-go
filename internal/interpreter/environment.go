@@ -46,3 +46,20 @@ func (e *Environment) assign(name token.Token, value any) (any, error) {
 func (e *Environment) define(name string, value any) {
 	e.values[name] = value
 }
+
+func (e *Environment) getAt(distance int, name string) (any, error) {
+	return e.ancestor(distance).values[name], nil
+}
+
+func (e *Environment) assignAt(distance int, name token.Token, value any) error {
+	e.ancestor(distance).values[name.Lexeme] = value
+	return nil
+}
+
+func (e *Environment) ancestor(distance int) *Environment {
+	environment := e
+	for range distance {
+		environment = environment.enclosing
+	}
+	return environment
+}

@@ -132,9 +132,16 @@ func main() {
 			os.Exit(65)
 		}
 
-		interpreter := interpreter.NewInterpreter()
+		interpreterInstance := interpreter.NewInterpreter()
+		resolver := interpreter.NewResolver(interpreterInstance)
+		_, err = resolver.Resolve(nodes)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			os.Exit(70)
+		}
+
 		for _, node := range nodes {
-			val, err := node.Accept(&interpreter)
+			val, err := node.Accept(&interpreterInstance)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(70)
