@@ -136,7 +136,7 @@ func (r *Resolver) VisitUnaryExpr(expr *ast.UnaryExpr) (any, error) {
 func (r *Resolver) VisitVariableExpr(expr *ast.VariableExpr) (any, error) {
 	if len(r.scopes) != 0 {
 		if val, exists := r.scopes[len(r.scopes)-1][expr.Name.Lexeme]; exists && !val {
-			return nil, fmt.Errorf("[Line %d] can't read local variable in its own initializer: %v", expr.Name.Line, expr.Name.Lexeme)
+			return nil, fmt.Errorf("[Line %d] Error at '%v': Can't read local variable in its own initializer", expr.Name.Line, expr.Name.Lexeme)
 		}
 	}
 
