@@ -66,6 +66,12 @@ func (r *Resolver) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
 }
 
 func (r *Resolver) VisitVarStmt(stmt *ast.VarStmt) (any, error) {
+	if len(r.scopes) != 0 {
+		if _, exists := r.scopes[len(r.scopes)-1][stmt.Name.Lexeme]; exists {
+			return nil, fmt.Errorf("[Line %d] Error at '%v': Already a variable with this name in this scope", stmt.Name.Line, stmt.Name.Lexeme)
+		}
+	}
+
 	r.declare(stmt.Name)
 	if stmt.Initializer != nil {
 		if _, err := r.resolveExpr(stmt.Initializer); err != nil {

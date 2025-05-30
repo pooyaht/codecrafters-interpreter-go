@@ -1,19 +1,4 @@
-var world = "global world";
-var quz = "global quz";
-var foo = "global foo";
 {
-  var world = "outer world";
-  var quz = "outer quz";
-  {
-    var world = "inner world";
-    print world;
-    print quz;
-    print foo;
-  }
-  print world;
-  print quz;
-  print foo;
+  var a = "value";
+  var a = "other";
 }
-print world;
-print quz;
-print foo;
