@@ -75,7 +75,7 @@ func (i *Interpreter) VisitExpressionStmt(s *ast.ExpressionStmt) (any, error) {
 }
 
 func (i *Interpreter) VisitBlockStmt(s *ast.BlockStmt) (any, error) {
-	return nil, i.executeBlock(s.Statements, i.environment)
+	return nil, i.executeBlock(s.Statements, newEnvironment(&i.environment))
 }
 
 func (i *Interpreter) VisitIfStmt(s *ast.IfStmt) (any, error) {
@@ -320,7 +320,7 @@ func (i *Interpreter) executeBlock(statements []ast.Stmt, environment Environmen
 		i.environment = previousEnv
 	}()
 
-	i.environment = newEnvironment(&environment)
+	i.environment = environment
 
 	for _, stmt := range statements {
 		_, err := stmt.Accept(i)
@@ -334,9 +334,11 @@ func (i *Interpreter) executeBlock(statements []ast.Stmt, environment Environmen
 
 func (i *Interpreter) lookupVariable(name token.Token, expr ast.Expr) (any, error) {
 	if distance, ok := i.locals[expr]; ok {
-		return i.environment.getAt(distance, name.Lexeme)
+		result, err := i.environment.getAt(distance, name.Lexeme)
+		return result, err
 	} else {
-		return i.globals.get(name)
+		result, err := i.globals.get(name)
+		return result, err
 	}
 }
 

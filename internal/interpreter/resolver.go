@@ -158,7 +158,7 @@ func (r *Resolver) resolveFunction(stmt ast.FunctionStmt) (any, error) {
 func (r *Resolver) resolveLocal(expr ast.Expr, name token.Token) (any, error) {
 	for i := len(r.scopes) - 1; i >= 0; i-- {
 		scope := r.scopes[i]
-		if _, ok := scope[name.Lexeme]; ok {
+		if _, exists := scope[name.Lexeme]; exists {
 			r.interpreter.resolve(expr, len(r.scopes)-1-i)
 			break
 		}

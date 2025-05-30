@@ -12,9 +12,17 @@ type Environment struct {
 }
 
 func newEnvironment(enclosing *Environment) Environment {
+	if enclosing == nil {
+		return Environment{
+			enclosing: nil,
+			values:    make(map[string]any, 0),
+		}
+	}
+
+	enclosingCopy := *enclosing
 	return Environment{
-		enclosing: enclosing,
-		values:    make(map[string]any),
+		enclosing: &enclosingCopy,
+		values:    make(map[string]any, 0),
 	}
 }
 
@@ -33,7 +41,7 @@ func (e *Environment) get(name token.Token) (any, error) {
 func (e *Environment) assign(name token.Token, value any) (any, error) {
 	if _, ok := e.values[name.Lexeme]; ok {
 		e.values[name.Lexeme] = value
-		return nil, nil
+		return value, nil
 	}
 
 	if e.enclosing != nil {
@@ -48,11 +56,13 @@ func (e *Environment) define(name string, value any) {
 }
 
 func (e *Environment) getAt(distance int, name string) (any, error) {
-	return e.ancestor(distance).values[name], nil
+	env := e.ancestor(distance)
+	return env.values[name], nil
 }
 
 func (e *Environment) assignAt(distance int, name token.Token, value any) error {
-	e.ancestor(distance).values[name.Lexeme] = value
+	env := e.ancestor(distance)
+	env.values[name.Lexeme] = value
 	return nil
 }
 

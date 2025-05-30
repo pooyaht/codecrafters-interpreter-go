@@ -1,17 +1,19 @@
-fun global() {
-  print "global";
-}
-
+var world = "global world";
+var quz = "global quz";
+var foo = "global foo";
 {
-  fun f() {
-    global();
+  var world = "outer world";
+  var quz = "outer quz";
+  {
+    var world = "inner world";
+    print world;
+    print quz;
+    print foo;
   }
-
-  f();
-
-  fun global() {
-    print "local";
-  }
-
-  f();
+  print world;
+  print quz;
+  print foo;
 }
+print world;
+print quz;
+print foo;
