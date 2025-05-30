@@ -137,7 +137,7 @@ func main() {
 		_, err = resolver.Resolve(nodes)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
-			os.Exit(70)
+			os.Exit(65)
 		}
 
 		for _, node := range nodes {
