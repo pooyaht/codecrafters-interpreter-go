@@ -8,14 +8,16 @@ import (
 )
 
 type Resolver struct {
-	interpreter Interpreter
-	scopes      []map[string]bool
+	interpreter      Interpreter
+	scopes           []map[string]bool
+	isInsideFunction bool
 }
 
 func NewResolver(interpreter Interpreter) Resolver {
 	return Resolver{
-		interpreter: interpreter,
-		scopes:      []map[string]bool{},
+		interpreter:      interpreter,
+		scopes:           []map[string]bool{},
+		isInsideFunction: false,
 	}
 }
 
@@ -30,6 +32,11 @@ func (r *Resolver) VisitExpressionStmt(stmt *ast.ExpressionStmt) (any, error) {
 }
 
 func (r *Resolver) VisitFunctionStmt(stmt *ast.FunctionStmt) (any, error) {
+	if len(r.scopes) != 0 {
+		if _, exists := r.scopes[len(r.scopes)-1][stmt.Name.Lexeme]; exists {
+			return nil, fmt.Errorf("[Line %d] Error at '%v': Already a function with this name in this scope", stmt.Name.Line, stmt.Name.Lexeme)
+		}
+	}
 	r.declare(stmt.Name)
 	r.define(stmt.Name)
 	return r.resolveFunction(*stmt)
@@ -58,6 +65,10 @@ func (r *Resolver) VisitPrintStmt(stmt *ast.PrintStmt) (any, error) {
 }
 
 func (r *Resolver) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
+	if !r.isInsideFunction {
+		return nil, fmt.Errorf("[Line %d] Can't return from top-level code", stmt.Keyword.Line)
+	}
+
 	if stmt.Value != nil {
 		return r.resolveExpr(stmt.Value)
 	}
@@ -150,10 +161,21 @@ func (r *Resolver) VisitVariableExpr(expr *ast.VariableExpr) (any, error) {
 }
 
 func (r *Resolver) resolveFunction(stmt ast.FunctionStmt) (any, error) {
+	previousIsInsideFunction := r.isInsideFunction
+	r.isInsideFunction = true
+	defer func() {
+		r.isInsideFunction = previousIsInsideFunction
+	}()
+
 	r.beginScope()
 	defer r.endScope()
 
 	for _, token := range stmt.Parameters {
+		if len(r.scopes) != 0 {
+			if _, exists := r.scopes[len(r.scopes)-1][token.Lexeme]; exists {
+				return nil, fmt.Errorf("[Line %d] Error at '%v': Already a parameter with this name in this scope", stmt.Name.Line, stmt.Name.Lexeme)
+			}
+		}
 		r.declare(token)
 		r.define(token)
 	}

@@ -18,20 +18,18 @@ func (e RuntimeError) Error() string {
 }
 
 type Interpreter struct {
-	environment      Environment
-	globals          Environment
-	locals           map[ast.Expr]int
-	isInsideFunction bool
+	environment Environment
+	globals     Environment
+	locals      map[ast.Expr]int
 }
 
 func NewInterpreter() Interpreter {
 	globals := newEnvironment(nil)
 	globals.define("clock", &ClockFunction{})
 	return Interpreter{
-		environment:      globals,
-		globals:          globals,
-		locals:           make(map[ast.Expr]int, 0),
-		isInsideFunction: false,
+		environment: globals,
+		globals:     globals,
+		locals:      make(map[ast.Expr]int, 0),
 	}
 }
 
@@ -117,13 +115,6 @@ func (i *Interpreter) VisitFunctionStmt(s *ast.FunctionStmt) (any, error) {
 }
 
 func (i *Interpreter) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
-	if !i.isInsideFunction {
-		return nil, RuntimeError{
-			Message: "can't return from top-level code",
-			Line:    stmt.Keyword.Line,
-		}
-	}
-
 	var value any = nil
 	if stmt.Value != nil {
 		var err error

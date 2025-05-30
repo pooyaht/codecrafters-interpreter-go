@@ -23,11 +23,7 @@ type LoxFunctionReturnValue struct {
 }
 
 func (lf *LoxFunction) Call(interpreter Interpreter, arguments []any) (result any, err error) {
-	previousIsInsideFunction := interpreter.isInsideFunction
-	interpreter.isInsideFunction = true
-
 	defer func() {
-		interpreter.isInsideFunction = previousIsInsideFunction
 		if r := recover(); r != nil {
 			if returnVal, ok := r.(LoxFunctionReturnValue); ok {
 				result = returnVal.Value
