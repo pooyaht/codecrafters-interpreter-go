@@ -1,4 +1,8 @@
-{
-  var a = "value";
-  var a = "other";
+fun foo() {
+  class Superhero {}
+  print "Class declared inside function";
+  print Superhero;
 }
+
+foo();
+print "Function called successfully";

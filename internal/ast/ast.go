@@ -27,6 +27,7 @@ type StmtVisitor interface {
 	VisitWhileStmt(*WhileStmt) (any, error)
 	VisitFunctionStmt(*FunctionStmt) (any, error)
 	VisitReturnStmt(*ReturnStmt) (any, error)
+	VisitClassStmt(*ClassStmt) (any, error)
 }
 
 type AstPrinter struct {
@@ -57,6 +58,10 @@ func (p *AstPrinter) VisitWhileStmt(s *WhileStmt) (any, error) {
 }
 
 func (p *AstPrinter) VisitFunctionStmt(s *FunctionStmt) (any, error) {
+	return nil, nil
+}
+
+func (p *AstPrinter) VisitClassStmt(s *ClassStmt) (any, error) {
 	return nil, nil
 }
 

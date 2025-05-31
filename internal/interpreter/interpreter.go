@@ -126,6 +126,13 @@ func (i *Interpreter) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
 	panic(LoxFunctionReturnValue{Value: value})
 }
 
+func (i *Interpreter) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
+	i.environment.define(stmt.Name.Lexeme, nil)
+	class := newClass(stmt.Name.Lexeme)
+	i.environment.define(stmt.Name.Lexeme, class)
+	return nil, nil
+}
+
 func (i *Interpreter) VisitVariableExpr(e *ast.VariableExpr) (any, error) {
 	return i.lookupVariable(e.Name, e)
 }

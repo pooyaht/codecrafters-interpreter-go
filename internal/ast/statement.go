@@ -78,3 +78,12 @@ type ReturnStmt struct {
 func (s *ReturnStmt) Accept(v StmtVisitor) (any, error) {
 	return v.VisitReturnStmt(s)
 }
+
+type ClassStmt struct {
+	Name    token.Token
+	Methods []Stmt
+}
+
+func (s *ClassStmt) Accept(v StmtVisitor) (any, error) {
+	return v.VisitClassStmt(s)
+}

@@ -101,6 +101,12 @@ func (r *Resolver) VisitWhileStmt(stmt *ast.WhileStmt) (any, error) {
 	return r.resolveStmt(stmt.Body)
 }
 
+func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
+	r.declare(stmt.Name)
+	r.define(stmt.Name)
+	return nil, nil
+}
+
 func (r *Resolver) VisitAssignmentExpr(expr *ast.AssignmentExpr) (any, error) {
 	_, err := r.resolveExpr(expr.Value)
 	if err != nil {
