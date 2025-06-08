@@ -160,6 +160,14 @@ func (r *Resolver) VisitGetExpr(expr *ast.GetExpr) (any, error) {
 	return r.resolveExpr(expr.Object)
 }
 
+func (r *Resolver) VisitSetExpr(expr *ast.SetExpr) (any, error) {
+	_, err := r.resolveExpr(expr.Object)
+	if err != nil {
+		return nil, err
+	}
+	return r.resolveExpr(expr.Value)
+}
+
 func (r *Resolver) VisitVariableExpr(expr *ast.VariableExpr) (any, error) {
 	if len(r.scopes) != 0 {
 		if val, exists := r.scopes[len(r.scopes)-1][expr.Name.Lexeme]; exists && !val {

@@ -17,6 +17,7 @@ type ExprVisitor interface {
 	VisitLogicalExpr(*LogicalExpr) (any, error)
 	VisitCallExpr(*CallExpr) (any, error)
 	VisitGetExpr(*GetExpr) (any, error)
+	VisitSetExpr(*SetExpr) (any, error)
 }
 
 type StmtVisitor interface {
@@ -134,4 +135,16 @@ func (p *AstPrinter) VisitGetExpr(e *GetExpr) (any, error) {
 	}
 
 	return fmt.Sprintf("(. %v %s)", val, e.Name.Lexeme), nil
+}
+
+func (p *AstPrinter) VisitSetExpr(e *SetExpr) (any, error) {
+	objectStr, err := e.Object.Accept(p)
+	if err != nil {
+		return nil, err
+	}
+	valueStr, err := e.Value.Accept(p)
+	if err != nil {
+		return nil, err
+	}
+	return fmt.Sprintf("(= %v.%s %v)", objectStr, e.Name.Lexeme, valueStr), nil
 }

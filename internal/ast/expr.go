@@ -89,3 +89,13 @@ type GetExpr struct {
 func (e *GetExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitGetExpr(e)
 }
+
+type SetExpr struct {
+	Name   token.Token
+	Object Expr
+	Value  Expr
+}
+
+func (e *SetExpr) Accept(v ExprVisitor) (any, error) {
+	return v.VisitSetExpr(e)
+}

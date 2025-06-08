@@ -297,6 +297,12 @@ func (p *Parser) assignment() ast.Expr {
 				Name:  varExpr.Name,
 				Value: value,
 			}
+		} else if getExpr, ok := expr.(*ast.GetExpr); ok {
+			return &ast.SetExpr{
+				Object: getExpr.Object,
+				Name:   getExpr.Name,
+				Value:  value,
+			}
 		}
 
 		p.error(equals, "invalid assignment target")

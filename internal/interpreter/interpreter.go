@@ -297,6 +297,25 @@ func (i *Interpreter) VisitGetExpr(e *ast.GetExpr) (any, error) {
 	return instance.get(e.Name)
 }
 
+func (i *Interpreter) VisitSetExpr(e *ast.SetExpr) (any, error) {
+	object, err := e.Object.Accept(i)
+	if err != nil {
+		return nil, err
+	}
+
+	instance, ok := object.(instance)
+	if !ok {
+		return nil, RuntimeError{Message: "only instances have properties", Line: e.Name.Line}
+	}
+
+	value, err := e.Value.Accept(i)
+	if err != nil {
+		return nil, err
+	}
+	instance.set(e.Name, value)
+	return value, nil
+}
+
 func (i *Interpreter) isTruthy(v any) bool {
 	if v == nil {
 		return false
