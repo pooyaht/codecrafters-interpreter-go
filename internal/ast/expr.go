@@ -80,3 +80,12 @@ type CallExpr struct {
 func (e *CallExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitCallExpr(e)
 }
+
+type GetExpr struct {
+	Object Expr
+	Name   token.Token
+}
+
+func (e *GetExpr) Accept(v ExprVisitor) (any, error) {
+	return v.VisitGetExpr(e)
+}

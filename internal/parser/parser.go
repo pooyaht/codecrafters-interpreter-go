@@ -392,6 +392,9 @@ func (p *Parser) call() ast.Expr {
 	for {
 		if p.match(token.LEFT_PAREN) {
 			expr = p.finishCall(expr)
+		} else if p.match(token.DOT) {
+			name := p.consume(token.IDENTIFIER, "expected identifier after '.'")
+			expr = &ast.GetExpr{Name: *name, Object: expr}
 		} else {
 			break
 		}

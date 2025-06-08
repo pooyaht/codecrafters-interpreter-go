@@ -16,6 +16,7 @@ type ExprVisitor interface {
 	VisitAssignmentExpr(*AssignmentExpr) (any, error)
 	VisitLogicalExpr(*LogicalExpr) (any, error)
 	VisitCallExpr(*CallExpr) (any, error)
+	VisitGetExpr(*GetExpr) (any, error)
 }
 
 type StmtVisitor interface {
@@ -124,4 +125,13 @@ func (p *AstPrinter) VisitCallExpr(e *CallExpr) (any, error) {
 	}
 
 	return fmt.Sprintf("%s(%s)", callee, strings.Join(args, ", ")), nil
+}
+
+func (p *AstPrinter) VisitGetExpr(e *GetExpr) (any, error) {
+	val, err := e.Object.Accept(p)
+	if err != nil {
+		return nil, err
+	}
+
+	return fmt.Sprintf("(. %v %s)", val, e.Name.Lexeme), nil
 }

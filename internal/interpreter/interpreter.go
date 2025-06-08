@@ -283,6 +283,20 @@ func (i *Interpreter) VisitCallExpr(e *ast.CallExpr) (any, error) {
 	return callable.Call(*i, args)
 }
 
+func (i *Interpreter) VisitGetExpr(e *ast.GetExpr) (any, error) {
+	object, err := e.Object.Accept(i)
+	if err != nil {
+		return nil, err
+	}
+
+	instance, ok := object.(instance)
+	if !ok {
+		return nil, RuntimeError{Message: "only instances have properties", Line: e.Name.Line}
+	}
+
+	return instance.get(e.Name)
+}
+
 func (i *Interpreter) isTruthy(v any) bool {
 	if v == nil {
 		return false

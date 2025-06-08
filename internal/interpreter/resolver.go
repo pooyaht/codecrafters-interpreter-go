@@ -156,6 +156,10 @@ func (r *Resolver) VisitUnaryExpr(expr *ast.UnaryExpr) (any, error) {
 	return r.resolveExpr(expr.Right)
 }
 
+func (r *Resolver) VisitGetExpr(expr *ast.GetExpr) (any, error) {
+	return r.resolveExpr(expr.Object)
+}
+
 func (r *Resolver) VisitVariableExpr(expr *ast.VariableExpr) (any, error) {
 	if len(r.scopes) != 0 {
 		if val, exists := r.scopes[len(r.scopes)-1][expr.Name.Lexeme]; exists && !val {
