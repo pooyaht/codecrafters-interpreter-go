@@ -1,23 +1,13 @@
-class Animal {
-  makeSound() {
-    print this.sound;
-  }
-  identify() {
-    print this.species;
+class Confused {
+  method() {
+    fun inner(instance) {
+      var feeling = "confused";
+      print this.feeling;
+    }
+    return inner;
   }
 }
 
-var dog = Animal();
-dog.sound = "Woof";
-dog.species = "Dog";
-
-var cat = Animal();
-cat.sound = "Meow";
-cat.species = "Cat";
-
-// Swap methods between instances
-cat.makeSound = dog.makeSound;
-dog.identify = cat.identify;
-
-cat.makeSound();
-dog.identify();
+var instance = Confused();
+var m = instance.method();
+m(instance);

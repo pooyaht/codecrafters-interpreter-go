@@ -11,6 +11,7 @@ type Resolver struct {
 	interpreter      Interpreter
 	scopes           []map[string]bool
 	isInsideFunction bool
+	isInsideClass    bool
 }
 
 func NewResolver(interpreter Interpreter) Resolver {
@@ -18,6 +19,7 @@ func NewResolver(interpreter Interpreter) Resolver {
 		interpreter:      interpreter,
 		scopes:           []map[string]bool{},
 		isInsideFunction: false,
+		isInsideClass:    false,
 	}
 }
 
@@ -102,13 +104,22 @@ func (r *Resolver) VisitWhileStmt(stmt *ast.WhileStmt) (any, error) {
 }
 
 func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
+	prevIsInsideClass := r.isInsideClass
+	r.isInsideClass = true
+	defer func() {
+		r.isInsideClass = prevIsInsideClass
+	}()
+
 	r.declare(stmt.Name)
 	r.define(stmt.Name)
 
 	r.beginScope()
 	r.scopes[len(r.scopes)-1]["this"] = true
 	for _, method := range stmt.Methods {
-		r.resolveFunction(method)
+		_, err := r.resolveFunction(method)
+		if err != nil {
+			return nil, err
+		}
 	}
 	r.endScope()
 
@@ -187,6 +198,9 @@ func (r *Resolver) VisitVariableExpr(expr *ast.VariableExpr) (any, error) {
 }
 
 func (r *Resolver) VisitThisExpr(expr *ast.ThisExpr) (any, error) {
+	if !r.isInsideClass {
+		return nil, fmt.Errorf("[Line %d] Can't use 'this' outside of a class", expr.Keyword.Line)
+	}
 	return r.resolveLocal(expr, expr.Keyword)
 }
 

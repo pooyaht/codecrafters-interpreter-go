@@ -260,6 +260,9 @@ func (i *Interpreter) VisitLogicalExpr(e *ast.LogicalExpr) (any, error) {
 }
 
 func (i *Interpreter) VisitCallExpr(e *ast.CallExpr) (any, error) {
+	if _, ok := e.Callee.(*ast.ThisExpr); ok {
+		return nil, RuntimeError{Message: "can only call functions and classes", Line: e.Paren.Line}
+	}
 	callee, err := e.Callee.Accept(i)
 	if err != nil {
 		return nil, err
