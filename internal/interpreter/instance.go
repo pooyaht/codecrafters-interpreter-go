@@ -23,7 +23,7 @@ func (inst instance) get(name token.Token) (any, error) {
 		return val, nil
 	}
 	if method := inst.class.findMethod(name.Lexeme); method != nil {
-		return method, nil
+		return method.bind(inst), nil
 	}
 
 	return nil, RuntimeError{Message: fmt.Sprintf("undefined property %s", name.Lexeme), Line: name.Line}

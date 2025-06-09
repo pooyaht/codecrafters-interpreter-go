@@ -1,33 +1,23 @@
-class Superhero {
-  useSpecialPower(hero) {
-    print "Using power: " + hero.specialPower;
+class Animal {
+  makeSound() {
+    print this.sound;
   }
-
-  hasSpecialPower(hero) {
-    return hero.specialPower;
-  }
-
-  giveSpecialPower(hero, power) {
-    hero.specialPower = power;
+  identify() {
+    print this.species;
   }
 }
 
-// Methods in functions
-fun performHeroics(hero, superheroClass) {
-  if (superheroClass.hasSpecialPower(hero)) {
-    superheroClass.useSpecialPower(hero);
-  } else {
-    print "No special power available";
-  }
-}
+var dog = Animal();
+dog.sound = "Woof";
+dog.species = "Dog";
 
-var superman = Superhero();
-var heroClass = Superhero();
+var cat = Animal();
+cat.sound = "Meow";
+cat.species = "Cat";
 
-if (true) {
-  heroClass.giveSpecialPower(superman, "Flight");
-} else {
-  heroClass.giveSpecialPower(superman, "Strength");
-}
+// Swap methods between instances
+cat.makeSound = dog.makeSound;
+dog.identify = cat.identify;
 
-performHeroics(superman, heroClass);
+cat.makeSound();
+dog.identify();

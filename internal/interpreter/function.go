@@ -43,6 +43,12 @@ func (lf *LoxFunction) Call(interpreter Interpreter, arguments []any) (result an
 	return nil, interpreter.executeBlock(lf.declaration.Body, environment)
 }
 
+func (lf *LoxFunction) bind(instance instance) *LoxFunction {
+	env := newEnvironment(&lf.closure)
+	env.define("this", instance)
+	return newLoxFunction(lf.declaration, env)
+}
+
 func (lf *LoxFunction) Arity() int {
 	return len(lf.declaration.Parameters)
 }

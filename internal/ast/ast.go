@@ -18,6 +18,7 @@ type ExprVisitor interface {
 	VisitCallExpr(*CallExpr) (any, error)
 	VisitGetExpr(*GetExpr) (any, error)
 	VisitSetExpr(*SetExpr) (any, error)
+	VisitThisExpr(*ThisExpr) (any, error)
 }
 
 type StmtVisitor interface {
@@ -147,4 +148,8 @@ func (p *AstPrinter) VisitSetExpr(e *SetExpr) (any, error) {
 		return nil, err
 	}
 	return fmt.Sprintf("(= %v.%s %v)", objectStr, e.Name.Lexeme, valueStr), nil
+}
+
+func (p *AstPrinter) VisitThisExpr(e *ThisExpr) (any, error) {
+	return "This", nil
 }

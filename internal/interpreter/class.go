@@ -2,10 +2,10 @@ package interpreter
 
 type class struct {
 	name    string
-	methods map[string]LoxFunction
+	methods map[string]*LoxFunction
 }
 
-func newClass(name string, methods map[string]LoxFunction) class {
+func newClass(name string, methods map[string]*LoxFunction) class {
 	return class{
 		name,
 		methods,
@@ -27,7 +27,7 @@ func (cls class) Arity() int {
 
 func (cls class) findMethod(name string) *LoxFunction {
 	if method, ok := cls.methods[name]; ok {
-		return &method
+		return method
 	}
 	return nil
 }

@@ -99,3 +99,11 @@ type SetExpr struct {
 func (e *SetExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitSetExpr(e)
 }
+
+type ThisExpr struct {
+	Keyword token.Token
+}
+
+func (e *ThisExpr) Accept(v ExprVisitor) (any, error) {
+	return v.VisitThisExpr(e)
+}

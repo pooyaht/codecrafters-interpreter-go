@@ -449,6 +449,9 @@ func (p *Parser) primary() ast.Expr {
 	if p.match(token.IDENTIFIER) {
 		return &ast.VariableExpr{Name: p.previous()}
 	}
+	if p.match(token.THIS) {
+		return &ast.ThisExpr{Keyword: p.previous()}
+	}
 
 	p.error(p.peek(), "expect expression")
 	return nil

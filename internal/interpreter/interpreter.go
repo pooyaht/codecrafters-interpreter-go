@@ -128,10 +128,10 @@ func (i *Interpreter) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
 
 func (i *Interpreter) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 	i.environment.define(stmt.Name.Lexeme, nil)
-	methods := make(map[string]LoxFunction, 0)
+	methods := make(map[string]*LoxFunction, 0)
 	for _, functionStmt := range stmt.Methods {
 		method := newLoxFunction(functionStmt, i.environment)
-		methods[functionStmt.Name.Lexeme] = *method
+		methods[functionStmt.Name.Lexeme] = method
 	}
 	class := newClass(stmt.Name.Lexeme, methods)
 	i.environment.define(stmt.Name.Lexeme, class)
@@ -319,6 +319,10 @@ func (i *Interpreter) VisitSetExpr(e *ast.SetExpr) (any, error) {
 	}
 	instance.set(e.Name, value)
 	return value, nil
+}
+
+func (i *Interpreter) VisitThisExpr(e *ast.ThisExpr) (any, error) {
+	return i.lookupVariable(e.Keyword, e)
 }
 
 func (i *Interpreter) isTruthy(v any) bool {

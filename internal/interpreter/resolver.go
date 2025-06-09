@@ -105,9 +105,13 @@ func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 	r.declare(stmt.Name)
 	r.define(stmt.Name)
 
+	r.beginScope()
+	r.scopes[len(r.scopes)-1]["this"] = true
 	for _, method := range stmt.Methods {
 		r.resolveFunction(method)
 	}
+	r.endScope()
+
 	return nil, nil
 }
 
@@ -180,6 +184,10 @@ func (r *Resolver) VisitVariableExpr(expr *ast.VariableExpr) (any, error) {
 	}
 
 	return r.resolveLocal(expr, expr.Name)
+}
+
+func (r *Resolver) VisitThisExpr(expr *ast.ThisExpr) (any, error) {
+	return r.resolveLocal(expr, expr.Keyword)
 }
 
 func (r *Resolver) resolveFunction(stmt ast.FunctionStmt) (any, error) {
