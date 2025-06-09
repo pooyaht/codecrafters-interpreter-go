@@ -128,7 +128,12 @@ func (i *Interpreter) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
 
 func (i *Interpreter) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 	i.environment.define(stmt.Name.Lexeme, nil)
-	class := newClass(stmt.Name.Lexeme)
+	methods := make(map[string]LoxFunction, 0)
+	for _, functionStmt := range stmt.Methods {
+		method := newLoxFunction(functionStmt, i.environment)
+		methods[functionStmt.Name.Lexeme] = *method
+	}
+	class := newClass(stmt.Name.Lexeme, methods)
 	i.environment.define(stmt.Name.Lexeme, class)
 	return nil, nil
 }

@@ -104,6 +104,10 @@ func (r *Resolver) VisitWhileStmt(stmt *ast.WhileStmt) (any, error) {
 func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 	r.declare(stmt.Name)
 	r.define(stmt.Name)
+
+	for _, method := range stmt.Methods {
+		r.resolveFunction(method)
+	}
 	return nil, nil
 }
 
