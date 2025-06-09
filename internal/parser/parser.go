@@ -99,16 +99,16 @@ func (p *Parser) classDeclaration() ast.Stmt {
 	name := p.consume(token.IDENTIFIER, "expect class name")
 	p.consume(token.LEFT_BRACE, "expect '{' before class body")
 
-	methods := make([]ast.Stmt, 0)
+	methods := make([]ast.FunctionStmt, 0)
 	for !p.isAtEnd() && !p.check(token.RIGHT_BRACE) {
-		methods = append(methods, p.function("method"))
+		methods = append(methods, *p.function("method"))
 	}
 
 	p.consume(token.RIGHT_BRACE, "expect '}' after class body")
 	return &ast.ClassStmt{Name: *name, Methods: methods}
 }
 
-func (p *Parser) function(kind string) ast.Stmt {
+func (p *Parser) function(kind string) *ast.FunctionStmt {
 	name := p.consume(token.IDENTIFIER, fmt.Sprintf("expect %s name", kind))
 	p.consume(token.LEFT_PAREN, fmt.Sprintf("expect '(' after %s name", kind))
 
