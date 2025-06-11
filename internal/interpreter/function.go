@@ -7,14 +7,16 @@ import (
 )
 
 type LoxFunction struct {
-	declaration ast.FunctionStmt
-	closure     Environment
+	declaration   ast.FunctionStmt
+	closure       Environment
+	isInitializer bool
 }
 
-func newLoxFunction(declaration ast.FunctionStmt, closure Environment) *LoxFunction {
+func newLoxFunction(declaration ast.FunctionStmt, closure Environment, isInitializer bool) *LoxFunction {
 	return &LoxFunction{
-		declaration: declaration,
-		closure:     closure,
+		declaration:   declaration,
+		closure:       closure,
+		isInitializer: isInitializer,
 	}
 }
 
@@ -28,9 +30,12 @@ func (lf *LoxFunction) Call(interpreter Interpreter, arguments []any) (result an
 			if returnVal, ok := r.(LoxFunctionReturnValue); ok {
 				result = returnVal.Value
 				err = nil
-				return
+			} else {
+				panic(r)
 			}
-			panic(r)
+		}
+		if lf.isInitializer {
+			result, err = lf.closure.getAt(0, "this")
 		}
 	}()
 
@@ -46,7 +51,7 @@ func (lf *LoxFunction) Call(interpreter Interpreter, arguments []any) (result an
 func (lf *LoxFunction) bind(instance instance) *LoxFunction {
 	env := newEnvironment(&lf.closure)
 	env.define("this", instance)
-	return newLoxFunction(lf.declaration, env)
+	return newLoxFunction(lf.declaration, env, lf.isInitializer)
 }
 
 func (lf *LoxFunction) Arity() int {

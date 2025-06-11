@@ -109,7 +109,7 @@ func (i *Interpreter) VisitWhileStmt(s *ast.WhileStmt) (any, error) {
 }
 
 func (i *Interpreter) VisitFunctionStmt(s *ast.FunctionStmt) (any, error) {
-	function := newLoxFunction(*s, i.environment)
+	function := newLoxFunction(*s, i.environment, false)
 	i.environment.define(s.Name.Lexeme, function)
 	return nil, nil
 }
@@ -130,7 +130,7 @@ func (i *Interpreter) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 	i.environment.define(stmt.Name.Lexeme, nil)
 	methods := make(map[string]*LoxFunction, 0)
 	for _, functionStmt := range stmt.Methods {
-		method := newLoxFunction(functionStmt, i.environment)
+		method := newLoxFunction(functionStmt, i.environment, functionStmt.Name.Lexeme == "init")
 		methods[functionStmt.Name.Lexeme] = method
 	}
 	class := newClass(stmt.Name.Lexeme, methods)

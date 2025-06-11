@@ -18,10 +18,16 @@ func (cls class) String() string {
 
 func (cls class) Call(interpreter Interpreter, arguments []any) (result any, err error) {
 	instance := newInstance(cls)
+	if initMethod := cls.findMethod("init"); initMethod != nil {
+		return initMethod.bind(instance).Call(interpreter, arguments)
+	}
 	return instance, nil
 }
 
 func (cls class) Arity() int {
+	if initMethod := cls.findMethod("init"); initMethod != nil {
+		return initMethod.Arity()
+	}
 	return 0
 }
 

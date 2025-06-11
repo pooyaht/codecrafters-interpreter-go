@@ -7,19 +7,28 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/internal/token"
 )
 
+type functionType int
+
+const (
+	NONE functionType = iota
+	FUNCTION
+	METHOD
+	INITIALIZER
+)
+
 type Resolver struct {
-	interpreter      Interpreter
-	scopes           []map[string]bool
-	isInsideFunction bool
-	isInsideClass    bool
+	interpreter     Interpreter
+	scopes          []map[string]bool
+	currentFunction functionType
+	isInsideClass   bool
 }
 
 func NewResolver(interpreter Interpreter) Resolver {
 	return Resolver{
-		interpreter:      interpreter,
-		scopes:           []map[string]bool{},
-		isInsideFunction: false,
-		isInsideClass:    false,
+		interpreter:     interpreter,
+		scopes:          []map[string]bool{},
+		currentFunction: NONE,
+		isInsideClass:   false,
 	}
 }
 
@@ -41,7 +50,7 @@ func (r *Resolver) VisitFunctionStmt(stmt *ast.FunctionStmt) (any, error) {
 	}
 	r.declare(stmt.Name)
 	r.define(stmt.Name)
-	return r.resolveFunction(*stmt)
+	return r.resolveFunction(*stmt, FUNCTION)
 }
 
 func (r *Resolver) VisitIfStmt(stmt *ast.IfStmt) (any, error) {
@@ -67,11 +76,14 @@ func (r *Resolver) VisitPrintStmt(stmt *ast.PrintStmt) (any, error) {
 }
 
 func (r *Resolver) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
-	if !r.isInsideFunction {
+	if r.currentFunction == NONE {
 		return nil, fmt.Errorf("[Line %d] Can't return from top-level code", stmt.Keyword.Line)
 	}
 
 	if stmt.Value != nil {
+		if r.currentFunction == INITIALIZER {
+			return nil, fmt.Errorf("[Line %d] Can't return a value from initializer", stmt.Keyword.Line)
+		}
 		return r.resolveExpr(stmt.Value)
 	}
 
@@ -116,7 +128,11 @@ func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 	r.beginScope()
 	r.scopes[len(r.scopes)-1]["this"] = true
 	for _, method := range stmt.Methods {
-		_, err := r.resolveFunction(method)
+		functionType := METHOD
+		if method.Name.Lexeme == "init" {
+			functionType = INITIALIZER
+		}
+		_, err := r.resolveFunction(method, functionType)
 		if err != nil {
 			return nil, err
 		}
@@ -204,11 +220,11 @@ func (r *Resolver) VisitThisExpr(expr *ast.ThisExpr) (any, error) {
 	return r.resolveLocal(expr, expr.Keyword)
 }
 
-func (r *Resolver) resolveFunction(stmt ast.FunctionStmt) (any, error) {
-	previousIsInsideFunction := r.isInsideFunction
-	r.isInsideFunction = true
+func (r *Resolver) resolveFunction(stmt ast.FunctionStmt, decleration functionType) (any, error) {
+	previousFunctionType := r.currentFunction
+	r.currentFunction = decleration
 	defer func() {
-		r.isInsideFunction = previousIsInsideFunction
+		r.currentFunction = previousFunctionType
 	}()
 
 	r.beginScope()
