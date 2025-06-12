@@ -151,5 +151,5 @@ func (p *AstPrinter) VisitSetExpr(e *SetExpr) (any, error) {
 }
 
 func (p *AstPrinter) VisitThisExpr(e *ThisExpr) (any, error) {
-	return "This", nil
+	return fmt.Sprintf("This [Line %d]", e.Keyword.Line), nil
 }
