@@ -37,5 +37,8 @@ func (cls class) findMethod(name string) *LoxFunction {
 	if method, ok := cls.methods[name]; ok {
 		return method
 	}
+	if cls.superclass != nil {
+		return cls.superclass.findMethod(name)
+	}
 	return nil
 }
