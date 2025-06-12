@@ -106,3 +106,12 @@ type ThisExpr struct {
 func (e *ThisExpr) Accept(v ExprVisitor) (any, error) {
 	return v.VisitThisExpr(e)
 }
+
+type SuperExpr struct {
+	Keyword token.Token
+	Method  token.Token
+}
+
+func (e *SuperExpr) Accept(v ExprVisitor) (any, error) {
+	return v.VisitSuperExpr(e)
+}

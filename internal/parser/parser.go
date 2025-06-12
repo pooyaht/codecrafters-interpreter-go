@@ -458,6 +458,14 @@ func (p *Parser) primary() ast.Expr {
 	if p.match(token.THIS) {
 		return &ast.ThisExpr{Keyword: p.previous()}
 	}
+	if p.match(token.SUPER) {
+		keyword := p.previous()
+		p.consume(token.DOT, "expect '.' after 'super'")
+		method := p.consume(token.IDENTIFIER, "expect superclass method name")
+		return &ast.SuperExpr{
+			Keyword: keyword, Method: *method,
+		}
+	}
 
 	p.error(p.peek(), "expect expression")
 	return nil

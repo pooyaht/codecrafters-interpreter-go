@@ -19,6 +19,7 @@ type ExprVisitor interface {
 	VisitGetExpr(*GetExpr) (any, error)
 	VisitSetExpr(*SetExpr) (any, error)
 	VisitThisExpr(*ThisExpr) (any, error)
+	VisitSuperExpr(*SuperExpr) (any, error)
 }
 
 type StmtVisitor interface {
@@ -151,5 +152,9 @@ func (p *AstPrinter) VisitSetExpr(e *SetExpr) (any, error) {
 }
 
 func (p *AstPrinter) VisitThisExpr(e *ThisExpr) (any, error) {
+	return fmt.Sprintf("This [Line %d]", e.Keyword.Line), nil
+}
+
+func (p *AstPrinter) VisitSuperExpr(e *SuperExpr) (any, error) {
 	return fmt.Sprintf("This [Line %d]", e.Keyword.Line), nil
 }

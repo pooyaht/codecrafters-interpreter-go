@@ -141,12 +141,24 @@ func (i *Interpreter) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 	}
 
 	i.environment.define(stmt.Name.Lexeme, nil)
+
+	if superclass != nil {
+		env := newEnvironment(&i.environment)
+		env.define("super", *superclass)
+		i.environment = env
+	}
+
 	methods := make(map[string]*LoxFunction, 0)
 	for _, functionStmt := range stmt.Methods {
 		method := newLoxFunction(functionStmt, i.environment, functionStmt.Name.Lexeme == "init")
 		methods[functionStmt.Name.Lexeme] = method
 	}
 	class := newClass(stmt.Name.Lexeme, superclass, methods)
+
+	if superclass != nil {
+		i.environment = *i.environment.enclosing
+	}
+
 	i.environment.define(stmt.Name.Lexeme, class)
 	return nil, nil
 }
@@ -339,6 +351,19 @@ func (i *Interpreter) VisitSetExpr(e *ast.SetExpr) (any, error) {
 
 func (i *Interpreter) VisitThisExpr(e *ast.ThisExpr) (any, error) {
 	return i.lookupVariable(e.Keyword, e)
+}
+
+func (i *Interpreter) VisitSuperExpr(e *ast.SuperExpr) (any, error) {
+	distance := i.locals[e]
+	val, _ := i.environment.getAt(distance, "super")
+	superclass := val.(class)
+	val, _ = i.environment.getAt(distance-1, "this")
+	this := val.(instance)
+	method := superclass.findMethod(e.Method.Lexeme)
+	if method == nil {
+		return nil, RuntimeError{Message: fmt.Sprintf("undefined property %s", e.Method.Lexeme), Line: e.Keyword.Line}
+	}
+	return method.bind(this), nil
 }
 
 func (i *Interpreter) isTruthy(v any) bool {

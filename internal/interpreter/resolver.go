@@ -10,25 +10,33 @@ import (
 type functionType int
 
 const (
-	NONE functionType = iota
+	NONEFUNCTION functionType = iota
 	FUNCTION
 	METHOD
 	INITIALIZER
+)
+
+type classType int
+
+const (
+	NONECLASS classType = iota
+	CLASS
+	SUBCLASS
 )
 
 type Resolver struct {
 	interpreter     Interpreter
 	scopes          []map[string]bool
 	currentFunction functionType
-	isInsideClass   bool
+	currentClass    classType
 }
 
 func NewResolver(interpreter Interpreter) Resolver {
 	return Resolver{
 		interpreter:     interpreter,
 		scopes:          []map[string]bool{},
-		currentFunction: NONE,
-		isInsideClass:   false,
+		currentFunction: NONEFUNCTION,
+		currentClass:    NONECLASS,
 	}
 }
 
@@ -76,7 +84,7 @@ func (r *Resolver) VisitPrintStmt(stmt *ast.PrintStmt) (any, error) {
 }
 
 func (r *Resolver) VisitReturnStmt(stmt *ast.ReturnStmt) (any, error) {
-	if r.currentFunction == NONE {
+	if r.currentFunction == NONEFUNCTION {
 		return nil, fmt.Errorf("[Line %d] Can't return from top-level code", stmt.Keyword.Line)
 	}
 
@@ -116,10 +124,10 @@ func (r *Resolver) VisitWhileStmt(stmt *ast.WhileStmt) (any, error) {
 }
 
 func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
-	prevIsInsideClass := r.isInsideClass
-	r.isInsideClass = true
+	prevCurrentClass := r.currentClass
+	r.currentClass = CLASS
 	defer func() {
-		r.isInsideClass = prevIsInsideClass
+		r.currentClass = prevCurrentClass
 	}()
 
 	r.declare(stmt.Name)
@@ -130,7 +138,10 @@ func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 		return nil, fmt.Errorf("line %d: a class can't inherit from itself", stmt.Superclass.Name.Line)
 	}
 	if stmt.Superclass != nil {
+		r.currentClass = SUBCLASS
 		r.resolveExpr(stmt.Superclass)
+		r.beginScope()
+		r.scopes[len(r.scopes)-1]["super"] = true
 	}
 
 	r.beginScope()
@@ -146,6 +157,10 @@ func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 		}
 	}
 	r.endScope()
+
+	if stmt.Superclass != nil {
+		r.endScope()
+	}
 
 	return nil, nil
 }
@@ -222,8 +237,18 @@ func (r *Resolver) VisitVariableExpr(expr *ast.VariableExpr) (any, error) {
 }
 
 func (r *Resolver) VisitThisExpr(expr *ast.ThisExpr) (any, error) {
-	if !r.isInsideClass {
+	if r.currentClass == NONECLASS {
 		return nil, fmt.Errorf("[Line %d] Can't use 'this' outside of a class", expr.Keyword.Line)
+	}
+	return r.resolveLocal(expr, expr.Keyword)
+}
+
+func (r *Resolver) VisitSuperExpr(expr *ast.SuperExpr) (any, error) {
+	if r.currentClass == NONECLASS {
+		return nil, fmt.Errorf("[Line %d] Can't use 'super' outside of a class", expr.Keyword.Line)
+	}
+	if r.currentClass == CLASS {
+		return nil, fmt.Errorf("[Line %d] Can't use 'super' in a class with no superclass", expr.Keyword.Line)
 	}
 	return r.resolveLocal(expr, expr.Keyword)
 }
