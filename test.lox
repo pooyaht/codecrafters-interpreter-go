@@ -1,25 +1,17 @@
-class Vehicle {
-  init(type) {
-    this.type = type;
-  }
+class Vehicle {}
+
+// Car is a subclass of Vehicle
+class Car < Vehicle {}
+
+// Sedan is a subclass of Car
+class Sedan < Car {}
+
+print Vehicle();
+print Car();
+print Sedan();
+
+{
+  // Truck is a subclass of Vehicle
+  class Truck < Vehicle {}
+  print Truck();
 }
-
-class Car {
-  init(make, model) {
-    this.make = make;
-    this.model = model;
-    this.wheels = "four";
-  }
-
-  describe() {
-    print this.make + " " + this.model +
-    " with " + this.wheels + " wheels";
-  }
-}
-
-var vehicle = Vehicle("Generic");
-print "Generic " + vehicle.type;
-
-var myCar = Car("Toyota", "Corolla");
-myCar.describe();
-

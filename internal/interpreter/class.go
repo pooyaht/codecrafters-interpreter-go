@@ -1,13 +1,15 @@
 package interpreter
 
 type class struct {
-	name    string
-	methods map[string]*LoxFunction
+	name       string
+	superclass *class
+	methods    map[string]*LoxFunction
 }
 
-func newClass(name string, methods map[string]*LoxFunction) class {
+func newClass(name string, superclass *class, methods map[string]*LoxFunction) class {
 	return class{
 		name,
+		superclass,
 		methods,
 	}
 }

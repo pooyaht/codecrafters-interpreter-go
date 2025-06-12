@@ -97,6 +97,12 @@ func (p *Parser) declaration() ast.Stmt {
 
 func (p *Parser) classDeclaration() ast.Stmt {
 	name := p.consume(token.IDENTIFIER, "expect class name")
+	var superclass *ast.VariableExpr = nil
+
+	if p.match(token.LESS) {
+		p.consume(token.IDENTIFIER, "expect superclass name")
+		superclass = &ast.VariableExpr{Name: p.previous()}
+	}
 	p.consume(token.LEFT_BRACE, "expect '{' before class body")
 
 	methods := make([]ast.FunctionStmt, 0)
@@ -105,7 +111,7 @@ func (p *Parser) classDeclaration() ast.Stmt {
 	}
 
 	p.consume(token.RIGHT_BRACE, "expect '}' after class body")
-	return &ast.ClassStmt{Name: *name, Methods: methods}
+	return &ast.ClassStmt{Name: *name, Superclass: superclass, Methods: methods}
 }
 
 func (p *Parser) function(kind string) *ast.FunctionStmt {

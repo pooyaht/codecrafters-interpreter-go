@@ -125,6 +125,14 @@ func (r *Resolver) VisitClassStmt(stmt *ast.ClassStmt) (any, error) {
 	r.declare(stmt.Name)
 	r.define(stmt.Name)
 
+	if stmt.Superclass != nil &&
+		stmt.Name.Lexeme == stmt.Superclass.Name.Lexeme {
+		return nil, fmt.Errorf("line %d: a class can't inherit from itself", stmt.Superclass.Name.Line)
+	}
+	if stmt.Superclass != nil {
+		r.resolveExpr(stmt.Superclass)
+	}
+
 	r.beginScope()
 	r.scopes[len(r.scopes)-1]["this"] = true
 	for _, method := range stmt.Methods {
