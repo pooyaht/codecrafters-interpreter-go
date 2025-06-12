@@ -44,8 +44,7 @@ func (e *BinaryExpr) Accept(v ExprVisitor) (any, error) {
 }
 
 type VariableExpr struct {
-	Name  token.Token
-	Value Expr
+	Name token.Token
 }
 
 func (e *VariableExpr) Accept(v ExprVisitor) (any, error) {
